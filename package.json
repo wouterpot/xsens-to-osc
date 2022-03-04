@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "dgram": "^1.0.1",
-    "jest-in-case": "^1.0.2"
+    "jest-in-case": "^1.0.2",
+    "osc": "^2.4.2"
   },
   "devDependencies": {
     "jest": "^27.5.1"

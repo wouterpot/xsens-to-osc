@@ -63,10 +63,11 @@ module.exports = function (buff) {
             const posX = readFloat()
             const posY = readFloat()
             const posZ = readFloat()
-            const rotX = readFloat()
-            const rotY = readFloat()
-            const rotZ = readFloat()
-            base.segments.push({ segmentId, posX, posY, posZ, rotX, rotY, rotZ })
+            const quatA = readFloat()
+            const quatB = readFloat()
+            const quatC = readFloat()
+            const quatD = readFloat()
+            base.segments.push({ segmentId, posX, posY, posZ, quatA, quatB, quatC, quatD })
         }
     }
     else if (type === 'MXTP12') { // MetaDatagram
