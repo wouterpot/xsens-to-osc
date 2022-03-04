@@ -1,11 +1,12 @@
 var dgram = require('dgram');
 var port = 9763;
+//var port = 57621;
 
 socket = dgram.createSocket('udp4');
 
+socket.on('error', err => console.log('***error', err))
 
-
-socket.on('message', function (msg, info){
+socket.on('message', function (msg, info) {
     const values = msg.values();
     let buff = Buffer.from(msg.toString())
 
@@ -31,12 +32,12 @@ socket.on('message', function (msg, info){
     }
 
     const readString = (length) => {
-        const res = buff.subarray(0,length).toString()
+        const res = buff.subarray(0, length).toString()
         buff = buff.subarray(length)
         return res
     }
 
-    
+
     const type = readString(6)
     const sampleCounter = readInt()
     const m_dgramCounter = readByte()
@@ -62,9 +63,9 @@ socket.on('message', function (msg, info){
             const posZ = readFloat()
         }
     }
- });
+});
 
-socket.on('listening', function(){
+socket.on('listening', function () {
     var address = socket.address();
     console.log("listening on :" + address.address + ":" + address.port);
 });
