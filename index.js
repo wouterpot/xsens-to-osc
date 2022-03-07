@@ -3,19 +3,29 @@ var port = 9763;
 
 const readPacket = require('./read-mxtp')
 const osc = require('./osc')
+require('dotenv').config();
 
 socket = dgram.createSocket('udp4');
 
 socket.on('message', function (msg, info) {
-    const packet = readPacket(msg)
-    if (packet.type === 'MXTP01') {
-        if ((packet.sampleCounter % 40) == 0) {
-            midi(0, packet.segments[0].posX)
+    try {
+        const packet = readPacket(msg)
+        if (packet.type === 'MXTP13') {
+            //console.log(packet)
         }
-        if ((packet.sampleCounter % 40) == 25) {
-            midi(1, packet.segments[1].posX)
+        if (packet.type === 'MXTP01') {
+            if ((packet.sampleCounter % 40) == 0) {
+                midi(0, packet.segments[10].posX)
+            }
+            if ((packet.sampleCounter % 40) == 18) {
+                midi(1, packet.segments[6].posY)
+            }
+            if ((packet.sampleCounter % 40) == 25) {
+                midi(2, packet.segments[14].posX)
+            }
         }
     }
+    catch (e) { }
 });
 
 const playedNotes = {}
@@ -39,4 +49,10 @@ socket.on('listening', () => {
     console.log("listening on: " + address.address + ":" + address.port);
 });
 
-socket.bind(port);
+socket.bind(port, 'localhost');
+
+const pcapFile = process.env.PCAP_FILE
+if (pcapFile) {
+    const { Worker } = require('worker_threads')
+    new Worker('./read-ncap.js', { workerData: {pcapFile} })
+}

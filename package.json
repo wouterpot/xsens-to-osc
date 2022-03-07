@@ -1,8 +1,10 @@
 {
   "dependencies": {
     "dgram": "^1.0.1",
+    "dotenv": "^16.0.0",
     "jest-in-case": "^1.0.2",
-    "osc": "^2.4.2"
+    "osc": "^2.4.2",
+    "pcap-parser": "^0.2.1"
   },
   "devDependencies": {
     "jest": "^27.5.1"
