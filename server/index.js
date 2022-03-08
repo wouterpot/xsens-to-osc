@@ -1,58 +1,25 @@
-var dgram = require('dgram');
-var port = 9763;
-
-const readPacket = require('./read-mxtp')
-const osc = require('./osc')
+const express = require('express')
 require('dotenv').config();
+const config = require('./config')
+require('./osc-sender')
 
-socket = dgram.createSocket('udp4');
+const app = express()
 
-socket.on('message', function (msg, info) {
-    try {
-        const packet = readPacket(msg)
-        if (packet.type === 'MXTP13') {
-            //console.log(packet)
-        }
-        if (packet.type === 'MXTP01') {
-            if ((packet.sampleCounter % 40) == 0) {
-                midi(0, packet.segments[10].posX)
-            }
-            if ((packet.sampleCounter % 40) == 18) {
-                midi(1, packet.segments[6].posY)
-            }
-            if ((packet.sampleCounter % 40) == 25) {
-                midi(2, packet.segments[14].posX)
-            }
-        }
-    }
-    catch (e) { }
-});
+const cors = require('cors')
+app.use(cors())
+app.use('/config', config)
 
-const playedNotes = {}
+module.exports = app
 
-const note = (channel, noteNr, noteOn = 1) => osc(`/vkb_midi/${channel}/note/${sane(noteNr)}`, noteOn, 'i')
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file.
+app.get('*', (_req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build/index.html'))
+  })
 
-const midi = (channel, noteNr) => {
-    if (!playedNotes[channel]) playedNotes[channel] = []
-    playedNotes[channel].push(noteNr)
-    note(channel, noteNr)
-    if (playedNotes[channel].length > 8) {
-        const noteToSilent = playedNotes[channel].shift()
-        note(channel, noteToSilent, 0)
-    }
-}
-
-const sane = (val) => Math.abs(Math.round(val))
-
-socket.on('listening', () => {
-    var address = socket.address();
-    console.log("listening on: " + address.address + ":" + address.port);
-});
-
-socket.bind(port, 'localhost');
-
-const pcapFile = process.env.PCAP_FILE
-if (pcapFile) {
-    const { Worker } = require('worker_threads')
-    new Worker('./read-ncap.js', { workerData: {pcapFile} })
-}
+// start listening
+const port = process.env.PORT || 5000
+app.set('trust proxy', '127.0.0.1')
+app.listen(port, () => {
+  console.log(`listening on port ${port}`)
+})

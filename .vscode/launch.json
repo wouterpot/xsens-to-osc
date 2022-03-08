@@ -6,7 +6,7 @@
       "request": "launch",
       "name": "Start",
       "program": "index.js",
-      "cwd": "${workspaceFolder}",
+      "cwd": "${workspaceFolder}/server",
       "args": ["start"],
       "console": "integratedTerminal"
     },
