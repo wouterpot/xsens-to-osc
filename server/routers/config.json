@@ -1,0 +1,25 @@
+[
+  {
+    "channel": 0,
+    "dimension": "posX",
+    "skip": 10,
+    "offset": -40,
+    "sensor": "Head",
+    "velocity": 100,
+    "threshold": 30
+  },
+  {
+    "channel": 1,
+    "dimension": "posX",
+    "skip": 20,
+    "sensor": "RightHand",
+    "velocity": 20
+  },
+  {
+    "channel": 2,
+    "dimension": "posZ",
+    "skip": 30,
+    "sensor": "LeftHand",
+    "velocity": 127
+  }
+]

@@ -1,0 +1,54 @@
+{
+	"info": {
+		"_postman_id": "022453e9-ed4d-4ac0-9e4c-9ad6c0a4f2f9",
+		"name": "did",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "get config",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:5000/config",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"config"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "set config",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n    {\r\n        \"channel\": 0,\r\n        \"dimension\": \"posX\",\r\n        \"skip\": 10,\r\n        \"offset\": -40,\r\n        \"sensor\": \"Head\"\r\n    }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:5000/config",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"config"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
