@@ -11,9 +11,9 @@ let lastTimestamp
 
 const packets = []
 
-const sendPackets = async ()=>{
+const sendPackets = async () => {
     do {
-        for (const {payload, wait } of packets ) {
+        for (const { payload, wait } of packets) {
             await socket.send(payload, 9763, '127.0.0.1')
             await sleep(wait)
         }
@@ -31,14 +31,14 @@ parser.on('packet', async (packet) => {
             if (lastTimestamp) {
                 wait = currentTimestamp - lastTimestamp
             }
-            packets.push({payload, wait})
+            packets.push({ payload, wait })
             lastTimestamp = currentTimestamp
         }
-        finally {}
+        finally { }
     }
 });
 
-parser.on('end', ()=>{
+parser.on('end', () => {
     sendPackets()
 })
 
