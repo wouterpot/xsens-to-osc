@@ -26,16 +26,41 @@ function App() {
   const columns = useMemo(
     () => [
       {
-        Header: "Name",
-        accessor: "name",
+        Header: "Sensor",
+        accessor: "sensor"
       },
+      {
+        Header: "Channel",
+        accessor: "channel"
+      },
+      {
+        Header: "Dimension",
+        accessor: "dimension"
+      },
+      {
+        Header: "Skip",
+        accessor: "skip"
+      },
+      {
+        Header: "Offset",
+        accessor: "offset"
+      },
+      {
+        Header: "Velocity",
+        accessor: "velocity"
+      },
+      {
+        Header: "Threshold",
+        accessor: "threshold"
+      }
     ],
     []
   );
 
   useEffect(() => {
-    server.get("/config").then((body) => setSegments(body.data));
-  });
+    server.get("/config").then((body) => setSegments(body.data.config)
+    );
+  }, []);
 
   const {
     getTableProps,
@@ -50,7 +75,7 @@ function App() {
       initialState: {
         pageSize: 23,
       },
-      getRowId: useCallback((row) => row.name, []),
+      getRowId: useCallback((row) => row.sensor, []),
     },
     useFilters,
     useSortBy,
@@ -61,7 +86,7 @@ function App() {
   return (
     <div className="App">
       <TableContainer>
-        <MaUTable {...getTableProps()} style={{ minHeight: "88vh" }}>
+        <MaUTable {...getTableProps()} >
           <TableHead>
             {headerGroups.map((headerGroup, i) => (
               <TableRow key={i} {...headerGroup.getHeaderGroupProps()}>
