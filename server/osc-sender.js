@@ -9,6 +9,7 @@ socket = dgram.createSocket("udp4");
 console.log(config());
 
 const skip = {};
+let lastPacket;
 
 socket.on("message", function (msg, info) {
     try {
@@ -19,6 +20,7 @@ socket.on("message", function (msg, info) {
 
         const currentConfig = config();
         if (packet.type === "MXTP01") {
+            lastPacket = packet;
             for (let i = 0; i < currentConfig.length; i++) {
                 const {
                     skip: skipSamples,
@@ -40,7 +42,7 @@ socket.on("message", function (msg, info) {
             }
             currentConfig.forEach();
         }
-    } catch (e) { }
+    } catch (e) {}
 });
 
 const silent = async (wait, channel, noteToSilent) => {
@@ -72,3 +74,5 @@ if (pcapFile) {
 }
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+module.exports = { getLastPacket: () => lastPacket };
