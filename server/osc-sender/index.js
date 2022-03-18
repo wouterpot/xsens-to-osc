@@ -1,9 +1,9 @@
 var dgram = require("dgram");
-const readPacket = require("./read-mxtp");
+const readPacket = require("../xsens/read-mxtp");
 const osc = require("./osc");
 const port = 9763;
-const { config } = require("./routers/config");
-const sensors = require("./routers/sensors");
+const { config } = require("../routers/config");
+const sensors = require("../routers/sensors");
 
 socket = dgram.createSocket("udp4");
 console.log(config());
@@ -42,7 +42,7 @@ socket.on("message", function (msg, info) {
             }
             currentConfig.forEach();
         }
-    } catch (e) {}
+    } catch (e) { }
 });
 
 const silent = async (wait, channel, noteToSilent) => {
@@ -70,7 +70,7 @@ socket.bind(port, "localhost");
 const pcapFile = process.env.PCAP_FILE;
 if (pcapFile) {
     const { Worker } = require("worker_threads");
-    new Worker("./read-ncap.js", { workerData: { pcapFile } });
+    new Worker("./xsens/read-ncap.js", { workerData: { pcapFile } });
 }
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
