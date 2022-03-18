@@ -1,5 +1,5 @@
 const express = require("express");
-const { getLastPacket } = require("../osc-sender");
+const { getLastPacket, getExtrema } = require("../osc-sender");
 const sensors = require("./sensors.json");
 const router = express.Router();
 
@@ -10,6 +10,11 @@ router.get("/", async (req, res) => {
         name: sensors[i],
     }));
     res.send({ lastPacket: packet });
+});
+
+router.get("/extrema", async (req, res) => {
+    const extrema = getExtrema();
+    res.send({ ...extrema });
 });
 
 module.exports = { pose: router };

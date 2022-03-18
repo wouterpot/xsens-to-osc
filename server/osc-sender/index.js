@@ -10,6 +10,8 @@ console.log(config());
 
 const skip = {};
 let lastPacket;
+let min = [];
+let max = [];
 
 socket.on("message", function (msg, info) {
     try {
@@ -21,6 +23,7 @@ socket.on("message", function (msg, info) {
         const currentConfig = config();
         if (packet.type === "MXTP01") {
             lastPacket = packet;
+            setMinMax(packet)
             for (let i = 0; i < currentConfig.length; i++) {
                 const {
                     skip: skipSamples,
@@ -75,4 +78,18 @@ if (pcapFile) {
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-module.exports = { getLastPacket: () => lastPacket };
+const setMinMax = (packet) => {
+    min = packet.segments.map(({ posX, posY, posZ }, i) => ({
+        posX: Math.min(posX, min[i]?.posX || Infinity),
+        posY: Math.min(posY, min[i]?.posY || Infinity),
+        posZ: Math.min(posZ, min[i]?.posZ || Infinity)
+    }))
+    max = packet.segments.map(({ posX, posY, posZ }, i) => ({
+        posX: Math.max(posX, max[i]?.posX || -Infinity),
+        posY: Math.max(posY, max[i]?.posY || -Infinity),
+        posZ: Math.max(posZ, max[i]?.posZ || -Infinity)
+    }))
+}
+
+
+module.exports = { getLastPacket: () => lastPacket, getExtrema: () => ({ min, max }) };
