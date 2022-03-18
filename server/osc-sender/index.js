@@ -1,9 +1,9 @@
 var dgram = require("dgram");
 const readPacket = require("../xsens/read-mxtp");
-const osc = require("./osc");
 const port = 9763;
 const { config } = require("../routers/config");
 const sensors = require("../routers/sensors");
+const actions = require("./actions");
 
 socket = dgram.createSocket("udp4");
 console.log(config());
@@ -23,7 +23,7 @@ socket.on("message", function (msg, info) {
         const currentConfig = config();
         if (packet.type === "MXTP01") {
             lastPacket = packet;
-            setMinMax(packet)
+            setMinMax(packet);
             for (let i = 0; i < currentConfig.length; i++) {
                 const {
                     skip: skipSamples,
@@ -33,6 +33,8 @@ socket.on("message", function (msg, info) {
                     channel,
                     velocity,
                     threshold,
+                    action = "midi",
+                    multiply = 1,
                 } = currentConfig[i];
                 const sensorIndex = sensors.indexOf(sensor);
                 const sensorValue = packet.segments[sensorIndex][dimension];
@@ -40,28 +42,17 @@ socket.on("message", function (msg, info) {
                 skip[i] = skip[i] || 0;
                 skip[i] = (skip[i] % skipSamples) + 1;
                 if (skip[i] === skipSamples) {
-                    midi(channel, sensorValue + offset, velocity);
+                    actions[action](
+                        channel,
+                        sensorValue * multiply + offset,
+                        velocity
+                    );
                 }
             }
             currentConfig.forEach();
         }
-    } catch (e) { }
+    } catch (e) {}
 });
-
-const silent = async (wait, channel, noteToSilent) => {
-    await sleep(wait);
-    note(channel, noteToSilent, 0);
-};
-
-const note = (channel, noteNr, velocity = 100) =>
-    osc(`/vkb_midi/${channel}/note/${sane(noteNr)}`, velocity, "i");
-
-const midi = (channel, noteNr, velocity) => {
-    note(channel, noteNr, velocity);
-    silent(1000, channel, noteNr);
-};
-
-const sane = (val) => Math.abs(Math.round(val)) % 127;
 
 socket.on("listening", () => {
     var address = socket.address();
@@ -76,20 +67,20 @@ if (pcapFile) {
     new Worker("./xsens/read-ncap.js", { workerData: { pcapFile } });
 }
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
 const setMinMax = (packet) => {
     min = packet.segments.map(({ posX, posY, posZ }, i) => ({
         posX: Math.min(posX, min[i]?.posX || Infinity),
         posY: Math.min(posY, min[i]?.posY || Infinity),
-        posZ: Math.min(posZ, min[i]?.posZ || Infinity)
-    }))
+        posZ: Math.min(posZ, min[i]?.posZ || Infinity),
+    }));
     max = packet.segments.map(({ posX, posY, posZ }, i) => ({
         posX: Math.max(posX, max[i]?.posX || -Infinity),
         posY: Math.max(posY, max[i]?.posY || -Infinity),
-        posZ: Math.max(posZ, max[i]?.posZ || -Infinity)
-    }))
-}
+        posZ: Math.max(posZ, max[i]?.posZ || -Infinity),
+    }));
+};
 
-
-module.exports = { getLastPacket: () => lastPacket, getExtrema: () => ({ min, max }) };
+module.exports = {
+    getLastPacket: () => lastPacket,
+    getExtrema: () => ({ min, max }),
+};
