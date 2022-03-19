@@ -23,9 +23,14 @@ function Pose() {
                     y: segments.map((s) => s.posY),
                     z: segments.map((s) => s.posZ),
                     text: segments.map((s) => s.name),
+                    fillColor: ["red", "green"],
                     mode: "markers+text",
                     type: "scatter3d",
-                    marker: { color: "red" },
+                    marker: {
+                        color: segments.map((s) =>
+                            s.active ? "green" : "red"
+                        ),
+                    },
                 },
             ]}
             layout={{
