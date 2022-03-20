@@ -4,6 +4,8 @@ import {
   TableFooter,
   TablePagination,
   TableContainer,
+  Select,
+  MenuItem,
 } from "@material-ui/core";
 import MaUTable from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -21,7 +23,10 @@ import {
 } from "react-table";
 
 function App() {
-  const [segments, setSegments] = useState([]);
+  const [config, setConfig] = useState([]);
+  const [sensors, setSensors] = useState([]);
+  const dimensions = ["posX", "posY", "posZ"]
+  const channels = [...Array(20).keys()]
 
   const columns = useMemo(
     () => [
@@ -58,9 +63,18 @@ function App() {
   );
 
   useEffect(() => {
-    server.get("/config").then((body) => setSegments(body.data.config)
+    server.get("/config").then((body) => {
+      setSensors(body.data.segments)
+      setConfig(body.data.config)
+    }
     );
   }, []);
+
+  useEffect(() => {
+    server.post("/config", config)
+    console.log(`updated config to:\n ${JSON.stringify(config)}`)
+  }, [config]);
+
 
   const {
     getTableProps,
@@ -71,7 +85,7 @@ function App() {
   } = useTable(
     {
       columns,
-      data: segments,
+      data: config,
       initialState: {
         pageSize: 23,
       },
@@ -82,6 +96,25 @@ function App() {
     usePagination,
     useRowSelect
   );
+
+
+  const handleSensorSelect = (event,i) => {
+    config[i].sensor = event.target.value
+    console.log(config)
+    setConfig([...config]);
+  };
+
+  const handleDimensionSelect = (event,i) => {
+    config[i].dimension = event.target.value
+    console.log(config)
+    setConfig([...config]);
+  };
+
+  const handleChannelSelect = (event,i) => {
+    config[i].channel = event.target.value
+    console.log(config)
+    setConfig([...config]);
+  };
 
   return (
     <div className="App">
@@ -112,8 +145,39 @@ function App() {
             {page.map((row, i) => {
               prepareRow(row);
               return (
+                
                 <TableRow key={i} {...row.getRowProps()}>
-                  {row.cells.map((cell, j) => {
+                  <TableCell key="-1">
+                    <Select value={config[i]?.sensor} onChange={((e) => handleSensorSelect(e,i))}>
+                      {
+                        sensors.map((sensor, k) => 
+                          <MenuItem value={sensor} key={k}>{sensor}</MenuItem>
+                        )
+                      }
+                    </Select>
+                  </TableCell>
+
+
+                  <TableCell key="-1">
+                    <Select value={config[i]?.channel} onChange={((e) => handleChannelSelect(e,i))}>
+                      {
+                        channels.map((channel, k) => 
+                          <MenuItem value={channel} key={k}>{channel}</MenuItem>
+                        )
+                      }
+                    </Select>
+                  </TableCell>
+
+                  <TableCell key="-1">
+                    <Select value={config[i]?.dimension} onChange={((e) => handleDimensionSelect(e,i))}>
+                      {
+                        dimensions.map((dimension, k) => 
+                          <MenuItem value={dimension} key={k}>{dimension}</MenuItem>
+                        )
+                      }
+                    </Select>
+                  </TableCell>
+                  {row.cells.slice(3).map((cell, j) => {
                     return (
                       <TableCell key={j} {...cell.getCellProps()}>
                         {cell.render("Cell")}
@@ -129,10 +193,10 @@ function App() {
               <TablePagination
                 rowsPerPageOptions={[
                   23,
-                  { label: "All", value: segments.length },
+                  { label: "All", value: config.length },
                 ]}
                 colSpan={3}
-                count={segments.length}
+                count={config.length}
                 rowsPerPage={pageSize}
                 page={pageIndex}
                 SelectProps={{
