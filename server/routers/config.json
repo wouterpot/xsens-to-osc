@@ -1,25 +1,25 @@
 [
     {
-        "channel": 0,
+        "channel": 1,
         "dimension": "posY",
-        "skip": 1,
+        "skip": 100,
         "sensor": "Head",
         "velocity": 20,
         "multiply": 10000,
         "action": "pitch"
     },
     {
-        "channel": 0,
+        "channel": 2,
         "dimension": "posX",
-        "skip": 20,
+        "skip": 100,
         "sensor": "RightHand",
         "velocity": 20,
         "action": "midi"
     },
     {
-        "channel": 0,
+        "channel": 3,
         "dimension": "posZ",
-        "skip": 1,
+        "skip": 100,
         "sensor": "LeftHand",
         "velocity": 127,
         "action": "cc_mod"

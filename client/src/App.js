@@ -26,7 +26,6 @@ function App() {
   const [config, setConfig] = useState([]);
   const [sensors, setSensors] = useState([]);
   const dimensions = ["posX", "posY", "posZ"]
-  const channels = [...Array(20).keys()]
 
   const columns = useMemo(
     () => [
@@ -98,23 +97,45 @@ function App() {
   );
 
 
-  const handleSensorSelect = (event,i) => {
+  const handleSensorSelect = (event, i) => {
     config[i].sensor = event.target.value
     console.log(config)
     setConfig([...config]);
   };
 
-  const handleDimensionSelect = (event,i) => {
+  const handleDimensionSelect = (event, i) => {
     config[i].dimension = event.target.value
     console.log(config)
     setConfig([...config]);
   };
 
-  const handleChannelSelect = (event,i) => {
+  const handleChannelSelect = (event, i) => {
     config[i].channel = event.target.value
     console.log(config)
     setConfig([...config]);
   };
+
+  const handleSkipSelect = (event, i) => {
+    config[i].skip = event.target.value
+    console.log(config)
+    setConfig([...config]);
+  };
+
+  const handleOffsetSelect = (event, i) => {
+    config[i].offset = event.targetvalue
+    console.log(config)
+    setConfig([...config]);
+  }
+  const handleVelocitySelect = (event, i) => {
+    config[i].velocity = event.targetvalue
+    console.log(config)
+    setConfig([...config]);
+  }
+  const handleTresholdSelect = (event, i) => {
+    config[i].treshold = event.targetvalue
+    console.log(config)
+    setConfig([...config]);
+  }
 
   return (
     <div className="App">
@@ -145,12 +166,12 @@ function App() {
             {page.map((row, i) => {
               prepareRow(row);
               return (
-                
+
                 <TableRow key={i} {...row.getRowProps()}>
-                  <TableCell key="-1">
-                    <Select value={config[i]?.sensor} onChange={((e) => handleSensorSelect(e,i))}>
+                  <TableCell key="0">
+                    <Select value={config[i]?.sensor} onChange={((e) => handleSensorSelect(e, i))}>
                       {
-                        sensors.map((sensor, k) => 
+                        sensors.map((sensor, k) =>
                           <MenuItem value={sensor} key={k}>{sensor}</MenuItem>
                         )
                       }
@@ -158,32 +179,38 @@ function App() {
                   </TableCell>
 
 
-                  <TableCell key="-1">
-                    <Select value={config[i]?.channel} onChange={((e) => handleChannelSelect(e,i))}>
-                      {
-                        channels.map((channel, k) => 
-                          <MenuItem value={channel} key={k}>{channel}</MenuItem>
-                        )
-                      }
-                    </Select>
+                  <TableCell key="1">
+                  <TableCell key="3">
+                    <input type="number" name="channel" value={config[i]?.channel} onChange={((e) => handleChannelSelect(e, i))} />
+                  </TableCell>
                   </TableCell>
 
-                  <TableCell key="-1">
-                    <Select value={config[i]?.dimension} onChange={((e) => handleDimensionSelect(e,i))}>
+                  <TableCell key="2">
+                    <Select value={config[i]?.dimension} onChange={((e) => handleDimensionSelect(e, i))}>
                       {
-                        dimensions.map((dimension, k) => 
+                        dimensions.map((dimension, k) =>
                           <MenuItem value={dimension} key={k}>{dimension}</MenuItem>
                         )
                       }
                     </Select>
                   </TableCell>
-                  {row.cells.slice(3).map((cell, j) => {
-                    return (
-                      <TableCell key={j} {...cell.getCellProps()}>
-                        {cell.render("Cell")}
-                      </TableCell>
-                    );
-                  })}
+
+                  <TableCell key="3">
+                    <input type="number" name="skip" value={config[i]?.skip || 0 } onChange={((e) => handleSkipSelect(e, i))} />
+                  </TableCell>
+
+                  <TableCell key="4">
+                    <input type="number" name="offset" value={config[i]?.offset || 0 } onChange={((e) => handleOffsetSelect(e, i))} />
+                  </TableCell>
+
+                  <TableCell key="5">
+                    <input type="number" name="velocity" value={config[i]?.velocity || 0 } onChange={((e) => handleVelocitySelect(e, i))} />
+                  </TableCell>
+
+                  <TableCell key="6">
+                    <input type="number" name="treshold" value={config[i]?.treshold || 0 } onChange={((e) => handleTresholdSelect(e, i))} />
+                  </TableCell>
+
                 </TableRow>
               );
             })}
