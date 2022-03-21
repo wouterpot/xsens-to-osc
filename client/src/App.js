@@ -96,7 +96,6 @@ function App() {
     useRowSelect
   );
 
-
   const updateColumn = (property, value, row) => {
     if (!value) {
       return
@@ -105,40 +104,6 @@ function App() {
     config[row][property] = value
     setConfig([...config]);
   };
-
-  // const handleDimensionSelect = (event, i) => {
-  //   config[i].dimension = event.target.value
-  //   console.log(config)
-  //   setConfig([...config]);
-  // };
-
-  // const handleChannelSelect = (event, i) => {
-  //   config[i].channel = event.target.value
-  //   console.log(config)
-  //   setConfig([...config]);
-  // };
-
-  // const handleSkipSelect = (event, i) => {
-  //   config[i].skip = event.target.value
-  //   console.log(config)
-  //   setConfig([...config]);
-  // };
-
-  // const handleOffsetSelect = (event, i) => {
-  //   config[i].offset = event.targetvalue
-  //   console.log(config)
-  //   setConfig([...config]);
-  // }
-  // const handleVelocitySelect = (event, i) => {
-  //   config[i].velocity = event.targetvalue
-  //   console.log(config)
-  //   setConfig([...config]);
-  // }
-  // const handleTresholdSelect = (event, i) => {
-  //   config[i].treshold = event.targetvalue
-  //   console.log(config)
-  //   setConfig([...config]);
-  // }
 
   return (
     <div className="App">
