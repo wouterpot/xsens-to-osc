@@ -76,7 +76,7 @@ function App() {
 
   useEffect(() => {
     server.post("/config", config)
-    console.log(`updated config to:\n ${JSON.stringify(config)}`)
+    console.log(`updated config to:\n ${JSON.stringify(config, null, 2)}`)
   }, [config]);
 
 
