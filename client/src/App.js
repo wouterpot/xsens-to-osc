@@ -6,6 +6,7 @@ import {
   TableContainer,
   Select,
   MenuItem,
+  Button,
 } from "@material-ui/core";
 import MaUTable from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -32,6 +33,10 @@ function App() {
       {
         Header: "Sensor",
         accessor: "sensor"
+      },
+      {
+        Header: "Action",
+        accessor: "action"
       },
       {
         Header: "Channel",
@@ -105,6 +110,12 @@ function App() {
     setConfig([...config]);
   };
 
+  const addRow = () => {
+    console.log(`Adding another row`)
+    config.push({})
+    setConfig([...config]);
+  }
+
   return (
     <div className="App">
       <TableContainer>
@@ -137,7 +148,7 @@ function App() {
 
                 <TableRow key={i} {...row.getRowProps()}>
                   <TableCell key="0">
-                    <Select value={config[i]?.sensor} onChange={((e) => updateColumn('sensor',e.target.value, i))}>
+                    <Select value={config[i]?.sensor || 'Head'} onChange={((e) => updateColumn('sensor', e.target.value, i))}>
                       {
                         sensors.map((sensor, k) =>
                           <MenuItem value={sensor} key={k}>{sensor}</MenuItem>
@@ -147,11 +158,22 @@ function App() {
                   </TableCell>
 
                   <TableCell key="1">
-                    <input type="number" name="channel" value={config[i]?.channel} onChange={((e) => updateColumn('channel',e.target.value, i))} />
+                    <Select value={config[i]?.action} onChange={((e) => updateColumn('action', e.target.value, i))}>
+                      {
+                        ["midi", "pitch", "cc_mod"].map((action, k) =>
+                          <MenuItem value={action} key={k}>{action}</MenuItem>
+                        )
+                      }
+                    </Select>
                   </TableCell>
 
+
                   <TableCell key="2">
-                    <Select value={config[i]?.dimension} onChange={((e) => updateColumn('dimension',e.target.value, i))}>
+                    <input disabled={config[i]?.action !== "midi"} type="number" name="channel" value={config[i]?.channel} onChange={((e) => updateColumn('channel', e.target.value, i))} />
+                  </TableCell>
+
+                  <TableCell key="3">
+                    <Select value={config[i]?.dimension || 'posX'} onChange={((e) => updateColumn('dimension', e.target.value, i))}>
                       {
                         dimensions.map((dimension, k) =>
                           <MenuItem value={dimension} key={k}>{dimension}</MenuItem>
@@ -160,26 +182,27 @@ function App() {
                     </Select>
                   </TableCell>
 
-                  <TableCell key="3">
-                    <input type="number" name="skip" value={config[i]?.skip || 0 } onChange={((e) => updateColumn('skip',e.target.value, i))}/>
-                  </TableCell>
-
                   <TableCell key="4">
-                    <input type="number" name="offset" value={config[i]?.offset || 0 } onChange={((e) => updateColumn('offset',e.target.value, i))}/>
+                    <input type="number" name="skip" value={config[i]?.skip || 0} onChange={((e) => updateColumn('skip', e.target.value, i))} />
                   </TableCell>
 
                   <TableCell key="5">
-                    <input type="number" name="velocity" value={config[i]?.velocity || 0 } onChange={((e) => updateColumn('velocity',e.target.value, i))}/>
+                    <input type="number" name="offset" value={config[i]?.offset || 0} onChange={((e) => updateColumn('offset', e.target.value, i))} />
                   </TableCell>
 
                   <TableCell key="6">
-                    <input type="number" name="treshold" value={config[i]?.treshold || 0 } onChange={((e) => updateColumn('treshold',e.target.value, i))}/>
+                    <input type="number" name="velocity" value={config[i]?.velocity || 0} onChange={((e) => updateColumn('velocity', e.target.value, i))} />
+                  </TableCell>
+
+                  <TableCell key="7">
+                    <input type="number" name="treshold" value={config[i]?.treshold || 0} onChange={((e) => updateColumn('treshold', e.target.value, i))} />
                   </TableCell>
 
                 </TableRow>
               );
             })}
           </TableBody>
+          <Button onClick={() => addRow()}>+</Button>
           <TableFooter>
             <TableRow>
               <TablePagination
