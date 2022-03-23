@@ -83,9 +83,8 @@ function App() {
   const {
     getTableProps,
     headerGroups,
-    page,
+    rows,
     prepareRow,
-    state: { pageIndex, pageSize },
   } = useTable(
     {
       columns,
@@ -112,8 +111,8 @@ function App() {
 
   const addRow = () => {
     console.log(`Adding another row`)
-    config.push({})
-    setConfig([...config]);
+    const available = sensors.filter(s => !config.map(c => c.sensor).includes(s))
+    setConfig([...config, { sensor: available[0] }]);
   }
 
   return (
@@ -142,7 +141,7 @@ function App() {
             ))}
           </TableHead>
           <TableBody>
-            {page.map((row, i) => {
+            {rows.map((row, i) => {
               prepareRow(row);
               return (
 
@@ -203,24 +202,6 @@ function App() {
             })}
           </TableBody>
           <Button onClick={() => addRow()}>+</Button>
-          <TableFooter>
-            <TableRow>
-              <TablePagination
-                rowsPerPageOptions={[
-                  23,
-                  { label: "All", value: config.length },
-                ]}
-                colSpan={3}
-                count={config.length}
-                rowsPerPage={pageSize}
-                page={pageIndex}
-                SelectProps={{
-                  inputProps: { "aria-label": "rows per page" },
-                  native: true,
-                }}
-              />
-            </TableRow>
-          </TableFooter>
         </MaUTable>
       </TableContainer>
     </div>
