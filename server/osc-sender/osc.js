@@ -2,7 +2,7 @@ var osc = require("osc");
 const { networkInterfaces } = require("os");
 
 const interface = Object.values(networkInterfaces()).flat();
-const ipv4 = interface.find((i) => i.family === "IPv4")?.address;
+const ipv4 = interface.find((i) => i.family === "IPv4" && !i.internal)?.address;
 const ipMask = ipv4
     ? ipv4.replace(/(.*\..*\.*)\..*/, "$1.255")
     : "192.168.1.255";
@@ -31,8 +31,7 @@ module.exports = function (address, value, type = "f") {
     };
 
     console.log(
-        `Sending message ${msg.address}, ${JSON.stringify(msg.args)} to ${
-            udpPort.options.remoteAddress
+        `Sending message ${msg.address}, ${JSON.stringify(msg.args)} to ${udpPort.options.remoteAddress
         }: ${udpPort.options.remotePort}`
     );
     udpPort.send(msg);
