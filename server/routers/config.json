@@ -22,6 +22,18 @@
         "skip": 100,
         "sensor": "LeftHand",
         "velocity": 127,
-        "action": "cc_mod"
+        "action": "cc"
+    },
+    {
+        "track": 2,
+        "fx": 1,
+        "fxparam": 65,
+        "dimension": "posY",
+        "skip": 5,
+        "sensor": "LeftHand",
+        "velocity": 20,
+        "action": "fx",
+        "multiply": 0.01,
+        "offset": -0.7
     }
 ]

@@ -1,5 +1,4 @@
 const midi = require('./midi')
+const fx = require('./fx')
 
-console.log(midi)
-
-module.exports = { ...midi }
+module.exports = { ...midi, ...fx }

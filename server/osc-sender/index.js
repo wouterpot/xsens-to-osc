@@ -33,6 +33,9 @@ socket.on("message", function (msg, info) {
                     channel,
                     velocity,
                     threshold,
+                    track,
+                    fx,
+                    fxparam,
                     action = "midi",
                     multiply = 1,
                 } = currentConfig[i];
@@ -43,7 +46,7 @@ socket.on("message", function (msg, info) {
                 skip[i] = (skip[i] % skipSamples) + 1;
                 if (skip[i] === skipSamples) {
                     actions[action](
-                        channel,
+                        { channel, track, fx, fxparam },
                         sensorValue * multiply + offset,
                         velocity
                     );
@@ -51,7 +54,7 @@ socket.on("message", function (msg, info) {
             }
             currentConfig.forEach();
         }
-    } catch (e) {}
+    } catch (e) { }
 });
 
 socket.on("listening", () => {
