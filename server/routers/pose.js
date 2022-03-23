@@ -9,12 +9,15 @@ router.get("/", async (req, res) => {
     const currentConfig = config();
     const activeSensors = currentConfig.map((c) => c.sensor);
 
-    packet.segments = packet.segments.map((s, i) => ({
-        ...s,
-        name: sensors[i],
-        active: activeSensors.includes(sensors[i]),
-    }));
-    res.send({ lastPacket: packet });
+    if (packet) {
+        packet.segments = packet.segments.map((s, i) => ({
+            ...s,
+            name: sensors[i],
+            active: activeSensors.includes(sensors[i]),
+        }));
+        res.send({ lastPacket: packet });
+    }
+    else res.send({lastPacket: {}})
 });
 
 router.get("/extrema", async (req, res) => {

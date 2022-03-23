@@ -35,6 +35,7 @@ socket.on("message", function (msg, info) {
                     threshold,
                     track,
                     fx,
+                    cc,
                     fxparam,
                     action = "midi",
                     multiply = 1,
@@ -44,9 +45,9 @@ socket.on("message", function (msg, info) {
                 if (sensorValue <= threshold) continue;
                 skip[i] = skip[i] || 0;
                 skip[i] = (skip[i] % skipSamples) + 1;
-                if (skip[i] === skipSamples) {
+                if (skip[i] === skipSamples && actions[action]) {
                     actions[action](
-                        { channel, track, fx, fxparam },
+                        { channel, track, fx, fxparam, cc },
                         sensorValue * multiply + offset,
                         velocity
                     );

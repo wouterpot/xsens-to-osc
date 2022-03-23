@@ -8,7 +8,7 @@ const silent = async (wait, channel, noteToSilent) => {
 const note = (channel, noteNr, velocity = 100) =>
     osc(`/vkb_midi/${channel}/note/${sane(noteNr)}`, velocity, "i");
 
-const midi = (channel, noteNr, velocity) => {
+const midi = ({ channel }, noteNr, velocity) => {
     note(channel, noteNr, velocity);
     silent(1000, channel, noteNr);
 };
@@ -19,8 +19,8 @@ const sanePitch = (val) => Math.round(val) % 8126;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const cc = ({ channel, ccKey = 1 }, ccValue) => {
-    osc(`/vkb_midi/${channel}/cc/${ccKey}`, sane(ccValue), "i");
+const cc = ({ channel, cc = 1 }, ccValue) => {
+    osc(`/vkb_midi/${channel}/cc/${cc}`, sane(ccValue), "i");
 };
 
 const pitch = ({ channel }, ccValue) => {

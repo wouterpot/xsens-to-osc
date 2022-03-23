@@ -1,20 +1,21 @@
 [
     {
-        "channel": 1,
+        "channel": 0,
         "dimension": "posY",
-        "skip": 100,
+        "skip": 5,
         "sensor": "Head",
-        "velocity": 20,
+        "velocity": 100,
         "multiply": 10000,
         "action": "pitch"
     },
     {
         "channel": 2,
         "dimension": "posX",
-        "skip": 100,
+        "skip": 40,
         "sensor": "RightHand",
-        "velocity": 20,
-        "action": "midi"
+        "velocity": 100,
+        "offset": 50,
+        "action": "_midi"
     },
     {
         "channel": 3,
@@ -22,7 +23,7 @@
         "skip": 100,
         "sensor": "LeftHand",
         "velocity": 127,
-        "action": "cc"
+        "action": "_cc"
     },
     {
         "track": 2,
@@ -32,8 +33,20 @@
         "skip": 5,
         "sensor": "LeftHand",
         "velocity": 20,
-        "action": "fx",
+        "action": "__fx",
         "multiply": 0.01,
         "offset": -0.7
+    },
+    {
+        "channel": 0,
+        "cc": 3,
+        "fxparam": 2,
+        "dimension": "posY",
+        "skip": 1,
+        "sensor": "LeftHand",
+        "velocity": 20,
+        "action": "cc",
+        "multiply": 5,
+        "offset": -50
     }
 ]

@@ -159,7 +159,7 @@ function App() {
                   <TableCell key="1">
                     <Select value={config[i]?.action} onChange={((e) => updateColumn('action', e.target.value, i))}>
                       {
-                        ["midi", "pitch", "cc_mod"].map((action, k) =>
+                        ["midi", "pitch", "cc"].map((action, k) =>
                           <MenuItem value={action} key={k}>{action}</MenuItem>
                         )
                       }
