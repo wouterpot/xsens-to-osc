@@ -14,7 +14,7 @@ const packets = []
 const sendPackets = async () => {
     do {
         for (const { payload, wait } of packets) {
-            await socket.send(payload, 9763, '127.0.0.1')
+            socket.send(payload, 9763, '127.0.0.1')
             await sleep(wait)
         }
     } while (process.env.REPEAT)

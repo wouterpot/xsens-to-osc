@@ -14,48 +14,47 @@ let min = [];
 let max = [];
 
 socket.on("message", function (msg, info) {
-    try {
-        const packet = readPacket(msg);
-        if (packet.type === "MXTP13") {
-            //console.log(packet)
-        }
+    const packet = readPacket(msg);
+    if (!packet) return
 
-        const currentConfig = config();
-        if (packet.type === "MXTP01") {
-            lastPacket = packet;
-            setMinMax(packet);
-            for (let i = 0; i < currentConfig.length; i++) {
-                const {
-                    skip: skipSamples,
-                    dimension,
-                    offset = 0,
-                    sensor,
-                    channel,
-                    velocity,
-                    threshold,
-                    track,
-                    fx,
-                    cc,
-                    fxparam,
-                    action = "midi",
-                    multiply = 1,
-                } = currentConfig[i];
-                const sensorIndex = sensors.indexOf(sensor);
-                const sensorValue = packet.segments[sensorIndex][dimension];
-                if (sensorValue <= threshold) continue;
-                skip[i] = skip[i] || 1;
-                skip[i] = (skip[i] % skipSamples) + 1;
-                if (skip[i] === skipSamples && actions[action]) {
-                    actions[action](
-                        { channel, track, fx, fxparam, cc },
-                        sensorValue * multiply + offset,
-                        velocity
-                    );
-                }
+    if (packet.type === "MXTP13") {
+        //console.log(packet)
+    }
+
+    const currentConfig = config();
+    if (packet.type === "MXTP01") {
+        lastPacket = packet;
+        setMinMax(packet);
+        for (let i = 0; i < currentConfig.length; i++) {
+            const {
+                skip: skipSamples = 1,
+                dimension,
+                offset = 0,
+                sensor,
+                channel,
+                velocity,
+                threshold,
+                track,
+                fx,
+                cc,
+                fxparam,
+                action = "midi",
+                multiply = 1,
+            } = currentConfig[i];
+            const sensorIndex = sensors.indexOf(sensor);
+            const sensorValue = packet.segments[sensorIndex][dimension];
+            if (sensorValue <= threshold) continue;
+            skip[i] = skip[i] || 1;
+            skip[i] = (skip[i] % skipSamples) + 1;
+            if (skip[i] === skipSamples && actions[action]) {
+                actions[action](
+                    { channel, track, fx, fxparam, cc },
+                    sensorValue * multiply + offset,
+                    velocity
+                );
             }
-            currentConfig.forEach();
         }
-    } catch (e) { }
+    }
 });
 
 socket.on("listening", () => {

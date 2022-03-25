@@ -28,7 +28,8 @@ module.exports = function (buff) {
 
 
     const type = readString(6)
-    if (!type.startsWith('MXTP')) throw Exception('Invalid packet')
+    if (!type.startsWith('MXTP')) return
+
     const sampleCounter = readInt()
     const dgramCounter = readByte()
     const dataCount = readByte()

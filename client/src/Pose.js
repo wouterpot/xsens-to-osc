@@ -12,7 +12,7 @@ function Pose() {
 
     useEffect(() => {
         getPose();
-        setInterval(getPose, 200);
+        setInterval(getPose, 10);
     }, []);
 
     return (
