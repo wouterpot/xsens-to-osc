@@ -43,7 +43,7 @@ socket.on("message", function (msg, info) {
                 const sensorIndex = sensors.indexOf(sensor);
                 const sensorValue = packet.segments[sensorIndex][dimension];
                 if (sensorValue <= threshold) continue;
-                skip[i] = skip[i] || 0;
+                skip[i] = skip[i] || 1;
                 skip[i] = (skip[i] % skipSamples) + 1;
                 if (skip[i] === skipSamples && actions[action]) {
                     actions[action](

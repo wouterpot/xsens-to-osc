@@ -7,6 +7,8 @@ import {
   Select,
   MenuItem,
   Button,
+  Slider,
+  Checkbox
 } from "@material-ui/core";
 import MaUTable from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -31,6 +33,10 @@ function App() {
   const columns = useMemo(
     () => [
       {
+        Header: "Enabled",
+        accessor: "enabled"
+      },
+      {
         Header: "Sensor",
         accessor: "sensor"
       },
@@ -49,10 +55,6 @@ function App() {
       {
         Header: "Skip",
         accessor: "skip"
-      },
-      {
-        Header: "Offset",
-        accessor: "offset"
       },
       {
         Header: "Velocity",
@@ -75,7 +77,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    server.post("/config", config)
+    server.post("/config", config.filter((obj) => obj.enabled))
     console.log(`updated config to:\n ${JSON.stringify(config, null, 2)}`)
   }, [config]);
 
@@ -101,9 +103,6 @@ function App() {
   );
 
   const updateColumn = (property, value, row) => {
-    if (!value) {
-      return
-    }
     console.log(`updating ${property} of row ${row} from ${config[row][property]} to ${value}`)
     config[row][property] = value
     setConfig([...config]);
@@ -112,7 +111,16 @@ function App() {
   const addRow = () => {
     console.log(`Adding another row`)
     const available = sensors.filter(s => !config.map(c => c.sensor).includes(s))
-    setConfig([...config, { sensor: available[0] }]);
+    setConfig([...config, { 
+      enabled: true,
+      channel: 0,
+      dimension: "posX",
+      skip: 1,
+      multiply: 10,
+      sensor: available[0], 
+      action: "cc",
+      cc: 1
+    }]);
   }
 
   return (
@@ -147,6 +155,9 @@ function App() {
 
                 <TableRow key={i} {...row.getRowProps()}>
                   <TableCell key="0">
+                    <Checkbox checked={config[i]?.enabled == true} onChange={((e, value) => updateColumn('enabled', value, i))}/>
+                  </TableCell>
+                  <TableCell key="1">
                     <Select value={config[i]?.sensor || 'Head'} onChange={((e) => updateColumn('sensor', e.target.value, i))}>
                       {
                         sensors.map((sensor, k) =>
@@ -156,7 +167,7 @@ function App() {
                     </Select>
                   </TableCell>
 
-                  <TableCell key="1">
+                  <TableCell key="2">
                     <Select value={config[i]?.action} onChange={((e) => updateColumn('action', e.target.value, i))}>
                       {
                         ["midi", "pitch", "cc"].map((action, k) =>
@@ -164,14 +175,18 @@ function App() {
                         )
                       }
                     </Select>
+                    {
+                      config[i]?.action == "cc" && <input min={1} max={127} type="number" name="cc" value={config[i]?.cc || 0} onChange={((e) => updateColumn('cc', e.target.value, i))} />
+                    }
+
                   </TableCell>
 
-
-                  <TableCell key="2">
-                    <input disabled={config[i]?.action !== "midi"} type="number" name="channel" value={config[i]?.channel} onChange={((e) => updateColumn('channel', e.target.value, i))} />
-                  </TableCell>
 
                   <TableCell key="3">
+                    <input min={1} max={127} type="number" name="channel" value={config[i]?.channel} onChange={((e) => updateColumn('channel', e.target.value, i))} />
+                  </TableCell>
+
+                  <TableCell key="4">
                     <Select value={config[i]?.dimension || 'posX'} onChange={((e) => updateColumn('dimension', e.target.value, i))}>
                       {
                         dimensions.map((dimension, k) =>
@@ -181,16 +196,12 @@ function App() {
                     </Select>
                   </TableCell>
 
-                  <TableCell key="4">
-                    <input type="number" name="skip" value={config[i]?.skip || 0} onChange={((e) => updateColumn('skip', e.target.value, i))} />
-                  </TableCell>
-
                   <TableCell key="5">
-                    <input type="number" name="offset" value={config[i]?.offset || 0} onChange={((e) => updateColumn('offset', e.target.value, i))} />
+                    <Slider min={1} max={200} value={config[i]?.skip || 0} onChange={((e, value) => updateColumn('skip', value, i))} />
                   </TableCell>
 
                   <TableCell key="6">
-                    <input type="number" name="velocity" value={config[i]?.velocity || 0} onChange={((e) => updateColumn('velocity', e.target.value, i))} />
+                    <Slider min={0} max={127} value={config[i]?.velocity || 0} onChange={((_, value) => updateColumn('velocity', value, i))} />
                   </TableCell>
 
                   <TableCell key="7">
