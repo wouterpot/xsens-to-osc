@@ -1,14 +1,16 @@
 [
     {
+        "enabled": true,
         "channel": 0,
         "dimension": "posY",
         "skip": 5,
         "sensor": "Head",
         "velocity": 100,
-        "multiply": 10000,
+        "multiply": 100,
         "action": "pitch"
     },
     {
+        "enabled": true,
         "channel": 2,
         "dimension": "posY",
         "skip": 40,
@@ -18,14 +20,17 @@
         "action": "midi"
     },
     {
+        "enabled": true,
         "channel": 3,
         "dimension": "posZ",
         "skip": 100,
         "sensor": "LeftHand",
         "velocity": 127,
-        "action": "cc"
+        "action": "cc",
+        "cc": 3
     },
     {
+        "enabled": true,
         "channel": 0,
         "cc": 3,
         "fxparam": 2,

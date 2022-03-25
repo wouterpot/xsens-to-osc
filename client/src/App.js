@@ -57,6 +57,10 @@ function App() {
         accessor: "skip"
       },
       {
+        Header: "Multiply",
+        accessor: "multiply"
+      },
+      {
         Header: "Velocity",
         accessor: "velocity"
       },
@@ -197,14 +201,18 @@ function App() {
                   </TableCell>
 
                   <TableCell key="5">
-                    <Slider min={1} max={200} value={config[i]?.skip || 0} onChange={((e, value) => updateColumn('skip', value, i))} />
+                    <Slider valueLabelDisplay={true} min={0.1} max={1000} step={0.1} value={config[i]?.multiply || 0} onChange={((e, value) => updateColumn('multiply', value, i))} />
                   </TableCell>
 
                   <TableCell key="6">
-                    <Slider min={0} max={127} value={config[i]?.velocity || 0} onChange={((_, value) => updateColumn('velocity', value, i))} />
+                    <Slider valueLabelDisplay={true} min={1} max={200} value={config[i]?.skip || 0} onChange={((e, value) => updateColumn('skip', value, i))} />
                   </TableCell>
 
                   <TableCell key="7">
+                    <Slider valueLabelDisplay={true} min={0} max={127} value={config[i]?.velocity || 0} onChange={((_, value) => updateColumn('velocity', value, i))} />
+                  </TableCell>
+
+                  <TableCell key="8">
                     <input type="number" name="treshold" value={config[i]?.treshold || 0} onChange={((e) => updateColumn('treshold', e.target.value, i))} />
                   </TableCell>
 
