@@ -10,12 +10,12 @@
     },
     {
         "channel": 2,
-        "dimension": "posX",
+        "dimension": "posY",
         "skip": 40,
         "sensor": "RightHand",
         "velocity": 100,
         "offset": 50,
-        "action": "_midi"
+        "action": "midi"
     },
     {
         "channel": 3,
@@ -23,27 +23,15 @@
         "skip": 100,
         "sensor": "LeftHand",
         "velocity": 127,
-        "action": "_cc"
-    },
-    {
-        "track": 2,
-        "fx": 1,
-        "fxparam": 65,
-        "dimension": "posY",
-        "skip": 5,
-        "sensor": "LeftHand",
-        "velocity": 20,
-        "action": "__fx",
-        "multiply": 0.01,
-        "offset": -0.7
+        "action": "cc"
     },
     {
         "channel": 0,
         "cc": 3,
         "fxparam": 2,
-        "dimension": "posY",
+        "dimension": "posX",
         "skip": 1,
-        "sensor": "LeftHand",
+        "sensor": "LeftToe",
         "velocity": 20,
         "action": "cc",
         "multiply": 5,
