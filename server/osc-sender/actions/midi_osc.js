@@ -1,18 +1,12 @@
 const osc = require("../osc");
-var easymidi = require('easymidi');
-var output = new easymidi.Output('Xsens Midi', true);
-
-const midiSend = (type, data) => {
-    output.send(type, data);
-}
 
 const silent = async (wait, channel, noteToSilent) => {
     await sleep(wait);
     note(channel, noteToSilent, 0);
 };
 
-const note = (channel, note, velocity = 100) =>
-    midiSend(velocity === 0 ? 'noteoff' : 'noteon', { velocity, note, channel });
+const note = (channel, noteNr, velocity = 100) =>
+    osc(`/vkb_midi/${channel}/note/${sane(noteNr)}`, velocity, "i");
 
 const midi = ({ channel }, noteNr, velocity) => {
     note(channel, noteNr, velocity);
@@ -26,11 +20,11 @@ const sanePitch = (val) => Math.round(val) % 8126;
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const cc = ({ channel, cc = 1 }, ccValue) => {
-    midiSend('cc', { controller: cc, value: sane(ccValue), channel })
+    osc(`/vkb_midi/${channel}/cc/${cc}`, sane(ccValue), "i");
 };
 
-const pitch = ({ channel }, value) => {
-    midiSend('pitch', { value: sanePitch(value), channel });
+const pitch = ({ channel }, ccValue) => {
+    osc(`/vkb_midi/${channel}/pitch`, sanePitch(ccValue), "i");
 };
 
 module.exports = { midi, cc, pitch };

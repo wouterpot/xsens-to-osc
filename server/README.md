@@ -15,3 +15,5 @@
 * LFO / resonance
 * dry/wet
 * swell (volume)
+* eq op master dichtzetten
+* arpeggiator rate

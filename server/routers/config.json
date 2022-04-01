@@ -21,9 +21,9 @@
     },
     {
         "enabled": true,
-        "channel": 3,
+        "channel": 0,
         "dimension": "posZ",
-        "skip": 100,
+        "skip": 1,
         "sensor": "LeftHand",
         "velocity": 127,
         "action": "cc",
