@@ -10,8 +10,8 @@ console.log(config());
 
 const skip = {};
 let lastPacket;
-let min = [];
-let max = [];
+let calibration = [];
+let calibrate = false;
 
 socket.on("message", function (msg, info) {
     const packet = readPacket(msg);
@@ -24,7 +24,9 @@ socket.on("message", function (msg, info) {
     const currentConfig = config();
     if (packet.type === "MXTP01") {
         lastPacket = packet;
-        setMinMax(packet);
+        if (calibrate) {
+            setMinMax(packet);
+        }
         for (let i = 0; i < currentConfig.length; i++) {
             const {
                 skip: skipSamples = 1,
@@ -39,23 +41,34 @@ socket.on("message", function (msg, info) {
                 cc,
                 fxparam,
                 action = "midi",
-                multiply = 1,
+                multiply = 127,
             } = currentConfig[i];
             const sensorIndex = sensors.indexOf(sensor);
-            const sensorValue = packet.segments[sensorIndex][dimension];
+            let sensorValue = packet.segments[sensorIndex][dimension];
             if (sensorValue <= threshold) continue;
+            sensorValue = scale(sensorIndex, dimension, multiply, sensorValue)
             skip[i] = skip[i] || 1;
             skip[i] = (skip[i] % skipSamples) + 1;
             if (skip[i] === skipSamples && actions[action]) {
+                scale(i, sensorValue)
                 actions[action](
                     { channel, track, fx, fxparam, cc },
-                    sensorValue * multiply + offset,
+                    sensorValue,
                     velocity
                 );
             }
         }
     }
 });
+
+const scale = (i, dimension, multiply, sensorValue) => {
+    const minVal = calibration[i]?.min?.[dimension]
+    const maxVal = calibration[i]?.max?.[dimension]
+    if (minVal && maxVal)
+        return (sensorValue - minVal) * multiply / (maxVal - minVal)
+    else
+        return sensorValue
+}
 
 socket.on("listening", () => {
     var address = socket.address();
@@ -71,19 +84,26 @@ if (pcapFile) {
 }
 
 const setMinMax = (packet) => {
-    min = packet.segments.map(({ posX, posY, posZ }, i) => ({
-        posX: Math.min(posX, min[i]?.posX || Infinity),
-        posY: Math.min(posY, min[i]?.posY || Infinity),
-        posZ: Math.min(posZ, min[i]?.posZ || Infinity),
-    }));
-    max = packet.segments.map(({ posX, posY, posZ }, i) => ({
-        posX: Math.max(posX, max[i]?.posX || -Infinity),
-        posY: Math.max(posY, max[i]?.posY || -Infinity),
-        posZ: Math.max(posZ, max[i]?.posZ || -Infinity),
+    calibration = packet.segments.map(({ posX, posY, posZ }, i) => ({
+        name: sensors[i],
+        min: {
+            posX: Math.min(posX, calibration?.[i]?.min?.posX || Infinity),
+            posY: Math.min(posY, calibration?.[i]?.min?.posY || Infinity),
+            posZ: Math.min(posZ, calibration?.[i]?.min?.posZ || Infinity),
+        },
+        max: {
+            posX: Math.max(posX, calibration?.[i]?.max?.posX || -Infinity),
+            posY: Math.max(posY, calibration?.[i]?.max?.posY || -Infinity),
+            posZ: Math.max(posZ, calibration?.[i]?.max?.posZ || -Infinity),
+        }
     }));
 };
 
 module.exports = {
     getLastPacket: () => lastPacket,
-    getExtrema: () => ({ min, max }),
+    getCalibration: () => (calibration),
+    setCalibration: (_calibration) => calibration = _calibration,
+    setCalibrate: (cal) => {
+        calibrate = cal
+    }
 };

@@ -1,5 +1,5 @@
 const express = require("express");
-const { getLastPacket, getExtrema } = require("../osc-sender");
+const { getLastPacket, getCalibration, setCalibration, setCalibrate } = require("../osc-sender");
 const sensors = require("./sensors.json");
 const { config } = require("./config");
 const router = express.Router();
@@ -17,12 +17,23 @@ router.get("/", async (req, res) => {
         }));
         res.send({ lastPacket: packet });
     }
-    else res.send({lastPacket: {}})
+    else res.send({ lastPacket: {} })
 });
 
-router.get("/extrema", async (req, res) => {
-    const extrema = getExtrema();
-    res.send({ ...extrema });
+router.get("/:calibrate/calibrate", async (req, res) => {
+    setCalibrate(req.params.calibrate)
+    const calibration = getCalibration();
+    res.send(calibration)
+});
+
+router.get("/calibration", async (req, res) => {
+    const calibration = getCalibration();
+    res.send(calibration);
+});
+
+router.post("/calibration", async (req, res) => {
+    setCalibration(req.body.min, req.body.max)
+    res.sendStatus(200);
 });
 
 module.exports = { pose: router };

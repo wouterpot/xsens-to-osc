@@ -6,18 +6,19 @@
         "skip": 5,
         "sensor": "Head",
         "velocity": 100,
-        "multiply": 100,
-        "action": "pitch"
+        "action": "pitch",
+        "multiply": 127
     },
     {
         "enabled": true,
-        "channel": 2,
+        "channel": 0,
         "dimension": "posY",
-        "skip": 40,
+        "skip": 30,
         "sensor": "RightHand",
         "velocity": 100,
         "offset": 50,
-        "action": "midi"
+        "action": "midi",
+        "multiply": 16384
     },
     {
         "enabled": true,
@@ -27,7 +28,8 @@
         "sensor": "LeftHand",
         "velocity": 127,
         "action": "cc",
-        "cc": 3
+        "cc": 3,
+        "multiply": 127
     },
     {
         "enabled": true,
@@ -39,7 +41,7 @@
         "sensor": "LeftToe",
         "velocity": 20,
         "action": "cc",
-        "multiply": 5,
-        "offset": -50
+        "offset": -50,
+        "multiply": 127
     }
 ]

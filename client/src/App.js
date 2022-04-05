@@ -1,20 +1,19 @@
 import "./App.css";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import {
-  TableFooter,
-  TablePagination,
   TableContainer,
   Select,
   MenuItem,
   Button,
   Slider,
-  Checkbox
+  Checkbox,
 } from "@material-ui/core";
 import MaUTable from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
+import { ToggleButton } from '@material-ui/lab'
 import server from "./server";
 
 import {
@@ -28,6 +27,7 @@ import {
 function App() {
   const [config, setConfig] = useState([]);
   const [sensors, setSensors] = useState([]);
+  const [isCalibrating, setIsCalibrating] = useState(false);
   const dimensions = ["posX", "posY", "posZ"]
 
   const columns = useMemo(
@@ -55,10 +55,6 @@ function App() {
       {
         Header: "Skip",
         accessor: "skip"
-      },
-      {
-        Header: "Multiply",
-        accessor: "multiply"
       },
       {
         Header: "Velocity",
@@ -115,20 +111,45 @@ function App() {
   const addRow = () => {
     console.log(`Adding another row`)
     const available = sensors.filter(s => !config.map(c => c.sensor).includes(s))
-    setConfig([...config, { 
+    setConfig([...config, {
       enabled: true,
       channel: 0,
       dimension: "posX",
       skip: 1,
       multiply: 10,
-      sensor: available[0], 
+      sensor: available[0],
       action: "cc",
       cc: 1
     }]);
   }
 
+  async function getCalibration() {
+    const str = window.localStorage.getItem('calibration');
+    if (str) {
+      const calibration = JSON.parse(str);
+      await server.post(`/pose/calibration`, calibration);
+    }
+  }
+
+  useEffect(() => { getCalibration() }, [])
+
+  const toggleCalibration = async (calibrate) => {
+    console.log(`${calibrate ? 'Start' : 'Stop'} calibrating`)
+    const { data: calibration } = (await server.get(`/pose/${calibrate}/calibrate`)) || {}
+    console.log(calibration)
+    window.localStorage.setItem('calibration', JSON.stringify(calibration))
+    setIsCalibrating(calibrate)
+  }
+
   return (
     <div className="App">
+      <ToggleButton
+        value="check"
+        selected={isCalibrating}
+        onClick={() => toggleCalibration(!isCalibrating)}
+      >
+        Calibrate
+      </ToggleButton>
       <TableContainer>
         <MaUTable {...getTableProps()} >
           <TableHead>
@@ -159,7 +180,7 @@ function App() {
 
                 <TableRow key={i} {...row.getRowProps()}>
                   <TableCell key="0">
-                    <Checkbox checked={config[i]?.enabled == true} onChange={((e, value) => updateColumn('enabled', value, i))}/>
+                    <Checkbox checked={config[i]?.enabled === true} onChange={((e, value) => updateColumn('enabled', value, i))} />
                   </TableCell>
                   <TableCell key="1">
                     <Select value={config[i]?.sensor || 'Head'} onChange={((e) => updateColumn('sensor', e.target.value, i))}>
@@ -180,7 +201,7 @@ function App() {
                       }
                     </Select>
                     {
-                      config[i]?.action == "cc" && <input min={1} max={127} type="number" name="cc" value={config[i]?.cc || 0} onChange={((e) => updateColumn('cc', e.target.value, i))} />
+                      config[i]?.action === "cc" && <input min={1} max={127} type="number" name="cc" value={config[i]?.cc || 0} onChange={((e) => updateColumn('cc', e.target.value, i))} />
                     }
 
                   </TableCell>
@@ -225,6 +246,7 @@ function App() {
       </TableContainer>
     </div>
   );
+
 }
 
 export default App;
