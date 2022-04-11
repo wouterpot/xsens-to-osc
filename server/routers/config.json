@@ -1,47 +1,25 @@
 [
     {
         "enabled": true,
-        "channel": 0,
+        "channel": 1,
         "dimension": "posY",
-        "skip": 5,
-        "sensor": "Head",
+        "skip": 1,
+        "sensor": "RightHand",
         "velocity": 100,
-        "action": "pitch",
+        "offset": 50,
+        "action": "cc",
+        "cc": 28,
         "multiply": 127
     },
     {
         "enabled": true,
-        "channel": 0,
-        "dimension": "posY",
-        "skip": 30,
-        "sensor": "RightHand",
-        "velocity": 100,
-        "offset": 50,
-        "action": "midi",
-        "multiply": 16384
-    },
-    {
-        "enabled": true,
-        "channel": 0,
+        "channel": 1,
         "dimension": "posZ",
         "skip": 1,
         "sensor": "LeftHand",
         "velocity": 127,
         "action": "cc",
-        "cc": 3,
-        "multiply": 127
-    },
-    {
-        "enabled": true,
-        "channel": 0,
-        "cc": 3,
-        "fxparam": 2,
-        "dimension": "posX",
-        "skip": 1,
-        "sensor": "LeftToe",
-        "velocity": 20,
-        "action": "cc",
-        "offset": -50,
+        "cc": 21,
         "multiply": 127
     }
 ]

@@ -22,7 +22,7 @@ socket.on("message", function (msg, info) {
     }
 
     const currentConfig = config();
-    if (packet.type === "MXTP01") {
+    if (packet.type === "MXTP01" || packet.type === "MXTP02") {
         lastPacket = packet;
         if (calibrate) {
             setMinMax(packet);
