@@ -4,6 +4,8 @@ const port = 9763;
 const { config } = require("../routers/config");
 const sensors = require("../routers/sensors");
 const actions = require("./actions");
+const getIp = require("../get-ip");
+const readline = require('node:readline');
 
 socket = dgram.createSocket("udp4");
 console.log(config());
@@ -30,8 +32,8 @@ socket.on("message", function (msg, info) {
         for (let i = 0; i < currentConfig.length; i++) {
             const {
                 skip: skipSamples = 1,
+                enabled,
                 dimension,
-                offset = 0,
                 sensor,
                 channel,
                 velocity,
@@ -49,7 +51,8 @@ socket.on("message", function (msg, info) {
             sensorValue = scale(sensorIndex, dimension, multiply, sensorValue)
             skip[i] = skip[i] || 1;
             skip[i] = (skip[i] % skipSamples) + 1;
-            if (skip[i] === skipSamples && actions[action]) {
+            if (skip[i] === skipSamples && actions[action] && enabled) {
+                if (process.env.LOGGING) readline.cursorTo(process.stdout, 0, i)
                 scale(i, sensorValue)
                 actions[action](
                     { channel, track, fx, fxparam, cc },
@@ -75,9 +78,9 @@ socket.on("listening", () => {
     console.log("listening on: " + address.address + ":" + address.port);
 });
 
-socket.bind(port, "localhost");
-
 const pcapFile = process.env.PCAP_FILE;
+socket.bind(port, pcapFile ? "localhost" : getIp());
+
 if (pcapFile) {
     const { Worker } = require("worker_threads");
     new Worker("./xsens/read-ncap.js", { workerData: { pcapFile } });

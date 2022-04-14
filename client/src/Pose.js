@@ -8,7 +8,7 @@ function Pose() {
     const getPose = () =>
         server
             .get("/pose")
-            .then((b) => setSegments(b.data.lastPacket.segments));
+            .then(({ data } = {}) => setSegments(data?.lastPacket?.segments ?? []));
 
     useEffect(() => {
         getPose();

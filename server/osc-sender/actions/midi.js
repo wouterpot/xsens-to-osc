@@ -1,9 +1,10 @@
-const osc = require("../osc");
 var easymidi = require('easymidi');
 var output = new easymidi.Output('Xsens Midi', true);
 
 const midiSend = (type, data) => {
-    console.log(type, data)
+    if (process.env.LOGGING) {
+        console.log(type, data)
+    }
     output.send(type, data);
 }
 

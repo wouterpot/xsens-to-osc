@@ -1,10 +1,5 @@
 # xsens-to-osc
 
-# Capture UPD stream with wireshark
-# List interfaces with `bittwist -d`
-# play with `sudo bittwist -i 4 xsens.s0i0.pcap -vv`
-
-
 # OSC messages to send!
 
 * voorgeprogrammeerde (of live aangestuurd) track: akkoordhoogte
@@ -17,3 +12,8 @@
 * swell (volume)
 * eq op master dichtzetten
 * arpeggiator rate
+
+TODO:
+* 0 waardes tussen de pakketten
+* testen met xsens router
+* crash with empty calibration

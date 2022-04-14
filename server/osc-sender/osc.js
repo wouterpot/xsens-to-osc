@@ -1,8 +1,7 @@
 var osc = require("osc");
-const { networkInterfaces } = require("os");
+const getIp = require("../get-ip");
 
-const interface = Object.values(networkInterfaces()).flat();
-const ipv4 = interface.find((i) => i.family === "IPv4" && !i.internal)?.address;
+const ipv4 = getIp()
 const ipMask = ipv4
     ? ipv4.replace(/(.*\..*\.*)\..*/, "$1.255")
     : "192.168.1.255";

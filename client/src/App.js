@@ -150,6 +150,12 @@ function App() {
       >
         Calibrate
       </ToggleButton>
+      <Button
+        onClick={() => window.open('/pose')}
+      >
+        Pose
+      </Button>
+
       <TableContainer>
         <MaUTable {...getTableProps()} >
           <TableHead>
