@@ -15,7 +15,6 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import { ToggleButton } from '@material-ui/lab'
 import server, { getServerUrl } from "./server";
-
 import {
   useTable,
   useRowSelect,
@@ -24,49 +23,87 @@ import {
   useSortBy,
 } from "react-table";
 
+const dimensions = ["posX", "posY", "posZ"]
+
 function App() {
   const [config, setConfig] = useState([]);
   const [sensors, setSensors] = useState([]);
   const [isCalibratingAll, setIsCalibratingAll] = useState(false);
   const [isCalibratingActive, setIsCalibratingActive] = useState(false);
-  const dimensions = ["posX", "posY", "posZ"]
+
+  const updateColumn = useCallback((property, value, row) => {
+    console.log(`updating ${property} of row ${row} from ${config[row][property]} to ${value}`)
+    config[row][property] = value
+    setConfig([...config]);
+  }, [config, setConfig]);
 
   const columns = useMemo(
     () => [
       {
         Header: "Enabled",
-        accessor: "enabled"
+        accessor: "enabled",
+        Cell: ({ value, row }) => <Checkbox checked={value === true} onChange={((e, value) => updateColumn('enabled', value, row.index))} />
       },
       {
         Header: "Sensor",
-        accessor: "sensor"
+        accessor: "sensor",
+        Cell: ({ value, row }) => <Select value={value || 'Head'} onChange={((e) => updateColumn('sensor', e.target.value, row.index))}>
+          {
+            sensors.map((sensor, k) =>
+              <MenuItem value={sensor} key={k}>{sensor}</MenuItem>
+            )
+          }
+        </Select>
       },
       {
         Header: "Action",
-        accessor: "action"
+        accessor: "action",
+        Cell: ({ value, row }) => <>
+          <Select value={value} onChange={((e) => updateColumn('action', e.target.value, row.index))}>
+            {
+              ["midi", "pitch", "cc"].map((action, k) =>
+                <MenuItem value={action} key={k}>{action}</MenuItem>
+              )
+            }
+          </Select>
+          {
+            value === "cc" && <input min={1} max={127} type="number" name="cc" value={config[row.index]?.cc || 0} onChange={((e) => updateColumn('cc', e.target.value, row.index))} />
+          }
+        </>
       },
       {
         Header: "Channel",
-        accessor: "channel"
+        accessor: "channel",
+        Cell: ({ value, row }) => <input min={1} max={127} type="number" name="channel" value={value} onChange={((e) => updateColumn('channel', e.target.value, row.index))} />
       },
       {
         Header: "Dimension",
-        accessor: "dimension"
+        accessor: "dimension",
+        Cell: ({ value, row }) => <Select value={value || 'posX'} onChange={((e) => updateColumn('dimension', e.target.value, row.index))}>
+          {
+            dimensions.map((dimension, k) =>
+              <MenuItem value={dimension} key={k}>{dimension}</MenuItem>
+            )
+          }
+        </Select>
       },
       {
         Header: "Skip",
-        accessor: "skip"
+        accessor: "skip",
+        Cell: ({ value, row }) => <Slider valueLabelDisplay={true} min={1} max={200} value={value || 0} onChange={((e, value) => updateColumn('skip', value, row.index))} />
       },
       {
         Header: "Velocity",
-        accessor: "velocity"
+        accessor: "velocity",
+        Cell: ({ value, row }) => <Slider valueLabelDisplay={true} min={0} max={127} value={value || 0} onChange={((_, value) => updateColumn('velocity', value, row.index))} />
       },
       {
         Header: "Threshold",
-        accessor: "threshold"
+        accessor: "threshold",
+        Cell: ({ value, row }) => <input type="number" name="treshold" value={value || 0} onChange={((e) => updateColumn('treshold', e.target.value, row.index))} />
       }
     ],
-    []
+    [config, sensors, updateColumn]
   );
 
   useEffect(() => {
@@ -102,12 +139,6 @@ function App() {
     usePagination,
     useRowSelect
   );
-
-  const updateColumn = (property, value, row) => {
-    console.log(`updating ${property} of row ${row} from ${config[row][property]} to ${value}`)
-    config[row][property] = value
-    setConfig([...config]);
-  };
 
   const addRow = () => {
     console.log(`Adding another row`)
@@ -198,66 +229,17 @@ function App() {
             {rows.map((row, i) => {
               prepareRow(row);
               return (
-
-                <TableRow key={i} {...row.getRowProps()}>
-                  <TableCell key="0">
-                    <Checkbox checked={config[i]?.enabled === true} onChange={((e, value) => updateColumn('enabled', value, i))} />
-                  </TableCell>
-                  <TableCell key="1">
-                    <Select value={config[i]?.sensor || 'Head'} onChange={((e) => updateColumn('sensor', e.target.value, i))}>
-                      {
-                        sensors.map((sensor, k) =>
-                          <MenuItem value={sensor} key={k}>{sensor}</MenuItem>
-                        )
-                      }
-                    </Select>
-                  </TableCell>
-
-                  <TableCell key="2">
-                    <Select value={config[i]?.action} onChange={((e) => updateColumn('action', e.target.value, i))}>
-                      {
-                        ["midi", "pitch", "cc"].map((action, k) =>
-                          <MenuItem value={action} key={k}>{action}</MenuItem>
-                        )
-                      }
-                    </Select>
-                    {
-                      config[i]?.action === "cc" && <input min={1} max={127} type="number" name="cc" value={config[i]?.cc || 0} onChange={((e) => updateColumn('cc', e.target.value, i))} />
-                    }
-
-                  </TableCell>
-
-
-                  <TableCell key="3">
-                    <input min={1} max={127} type="number" name="channel" value={config[i]?.channel} onChange={((e) => updateColumn('channel', e.target.value, i))} />
-                  </TableCell>
-
-                  <TableCell key="4">
-                    <Select value={config[i]?.dimension || 'posX'} onChange={((e) => updateColumn('dimension', e.target.value, i))}>
-                      {
-                        dimensions.map((dimension, k) =>
-                          <MenuItem value={dimension} key={k}>{dimension}</MenuItem>
-                        )
-                      }
-                    </Select>
-                  </TableCell>
-
-                  <TableCell key="5">
-                    <Slider valueLabelDisplay={true} min={0.1} max={1000} step={0.1} value={config[i]?.multiply || 0} onChange={((e, value) => updateColumn('multiply', value, i))} />
-                  </TableCell>
-
-                  <TableCell key="6">
-                    <Slider valueLabelDisplay={true} min={1} max={200} value={config[i]?.skip || 0} onChange={((e, value) => updateColumn('skip', value, i))} />
-                  </TableCell>
-
-                  <TableCell key="7">
-                    <Slider valueLabelDisplay={true} min={0} max={127} value={config[i]?.velocity || 0} onChange={((_, value) => updateColumn('velocity', value, i))} />
-                  </TableCell>
-
-                  <TableCell key="8">
-                    <input type="number" name="treshold" value={config[i]?.treshold || 0} onChange={((e) => updateColumn('treshold', e.target.value, i))} />
-                  </TableCell>
-
+                <TableRow
+                  key={i}
+                  {...row.getRowProps()}
+                >
+                  {row.cells.map((cell, j) => {
+                    return (
+                      <TableCell key={j} {...cell.getCellProps()}>
+                        {cell.render('Cell')}
+                      </TableCell>
+                    )
+                  })}
                 </TableRow>
               );
             })}
