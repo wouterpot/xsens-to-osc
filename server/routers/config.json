@@ -1,7 +1,7 @@
 [
     {
         "enabled": true,
-        "channel": 1,
+        "channel": 0,
         "dimension": "posY",
         "skip": 1,
         "sensor": "RightHand",
@@ -13,8 +13,8 @@
     },
     {
         "enabled": true,
-        "channel": 1,
-        "dimension": "posZ",
+        "channel": 0,
+        "dimension": "posY",
         "skip": 1,
         "sensor": "LeftHand",
         "velocity": 127,

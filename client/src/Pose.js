@@ -43,7 +43,7 @@ function Pose() {
                     aspectratio: { x: 1, z: 1 },
 
                     camera: { up: { x: 0, y: 1, z: 0 } },
-                    xaxis: { autorange: false, range: [0, 150] },
+                    xaxis: { autorange: false, range: [-150, 150] },
                     yaxis: {
                         autorange: false,
                         range: [0.0, 250.0],

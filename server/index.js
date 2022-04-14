@@ -3,11 +3,14 @@ require("dotenv").config();
 const path = require("path");
 const { router } = require("./routers/config");
 const { pose } = require("./routers/pose");
+const logger = require('morgan')
 require("./osc-sender");
 
 const app = express();
 
 const cors = require("cors");
+app.set('json spaces', 2)
+app.use(logger('dev'))
 app.use(cors());
 app.use(express.json());
 app.use("/config", router);

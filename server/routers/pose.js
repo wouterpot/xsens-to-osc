@@ -1,5 +1,5 @@
 const express = require("express");
-const { getLastPacket, getCalibration, setCalibration, setCalibrate } = require("../osc-sender");
+const { getLastPacket, getCalibration, setCalibration, setCalibrationMode } = require("../osc-sender");
 const sensors = require("./sensors.json");
 const { config } = require("./config");
 const router = express.Router();
@@ -15,24 +15,25 @@ router.get("/", async (req, res) => {
             name: sensors[i],
             active: activeSensors.includes(sensors[i]),
         }));
-        res.send({ lastPacket: packet });
+        res.json({ lastPacket: packet });
     }
-    else res.send({ lastPacket: {} })
+    else res.json({ lastPacket: {} })
 });
 
-router.get("/:calibrate/calibrate", async (req, res) => {
-    setCalibrate(req.params.calibrate)
+router.post("/toggle-calibration", async (req, res) => {
+    setCalibrationMode(req.body)
     const calibration = getCalibration();
-    res.send(calibration)
+    res.json(calibration)
 });
 
 router.get("/calibration", async (req, res) => {
     const calibration = getCalibration();
-    res.send(calibration);
+    res.json(calibration);
 });
 
 router.post("/calibration", async (req, res) => {
-    setCalibration(req.body.min, req.body.max)
+    if (typeof req.body === 'object' && !Array.isArray(req.body) && req.body !== null)
+        setCalibration(req.body)
     res.sendStatus(200);
 });
 

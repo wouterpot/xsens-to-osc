@@ -16,4 +16,4 @@
 TODO:
 * 0 waardes tussen de pakketten
 * testen met xsens router
-* crash with empty calibration
+* activate under certain threshold

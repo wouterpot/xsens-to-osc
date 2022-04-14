@@ -14,7 +14,7 @@ import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import { ToggleButton } from '@material-ui/lab'
-import server from "./server";
+import server, { getServerUrl } from "./server";
 
 import {
   useTable,
@@ -27,7 +27,8 @@ import {
 function App() {
   const [config, setConfig] = useState([]);
   const [sensors, setSensors] = useState([]);
-  const [isCalibrating, setIsCalibrating] = useState(false);
+  const [isCalibratingAll, setIsCalibratingAll] = useState(false);
+  const [isCalibratingActive, setIsCalibratingActive] = useState(false);
   const dimensions = ["posX", "posY", "posZ"]
 
   const columns = useMemo(
@@ -127,33 +128,47 @@ function App() {
     const str = window.localStorage.getItem('calibration');
     if (str) {
       const calibration = JSON.parse(str);
-      await server.post(`/pose/calibration`, calibration);
+      if (calibration) await server.post(`/pose/calibration`, calibration);
     }
   }
 
   useEffect(() => { getCalibration() }, [])
 
-  const toggleCalibration = async (calibrate) => {
-    console.log(`${calibrate ? 'Start' : 'Stop'} calibrating`)
-    const { data: calibration } = (await server.get(`/pose/${calibrate}/calibrate`)) || {}
-    console.log(calibration)
-    window.localStorage.setItem('calibration', JSON.stringify(calibration))
-    setIsCalibrating(calibrate)
+  const toggleCalibration = async (all, active) => {
+    console.log(`Calibrate all: ${all}; Calibrate active: ${active}`)
+    setIsCalibratingAll(all)
+    setIsCalibratingActive(active)
+    const { data: calibration } = (await server.post(`/pose/toggle-calibration`, { all, active })) || {}
+    if (!all && !active) {
+      window.localStorage.setItem('calibration', JSON.stringify(calibration))
+    }
   }
 
   return (
     <div className="App">
       <ToggleButton
         value="check"
-        selected={isCalibrating}
-        onClick={() => toggleCalibration(!isCalibrating)}
+        selected={isCalibratingAll}
+        onClick={() => toggleCalibration(!isCalibratingAll, false)}
       >
-        Calibrate
+        Calibrate all
+      </ToggleButton>
+      <ToggleButton
+        value="check"
+        selected={isCalibratingActive}
+        onClick={() => toggleCalibration(false, !isCalibratingActive)}
+      >
+        Calibrate active
       </ToggleButton>
       <Button
         onClick={() => window.open('/pose')}
       >
         Pose
+      </Button>
+      <Button
+        onClick={() => window.open(`${getServerUrl()}/pose/calibration`)}
+      >
+        Show calibration
       </Button>
 
       <TableContainer>
