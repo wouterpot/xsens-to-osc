@@ -14,6 +14,7 @@ const skip = {};
 let lastPacket;
 let calibration = {};
 let calibrationMode = {};
+let datagramTypes = ["MXTP01"]
 
 socket.on("message", function (msg, info) {
     const packet = readPacket(msg);
@@ -24,8 +25,7 @@ socket.on("message", function (msg, info) {
     }
 
     const currentConfig = config();
-    if (packet.type === "MXTP01" || packet.type === "MXTP02") {
-        //console.log(packet)
+    if (datagramTypes.includes(packet.type)) {
         lastPacket = packet;
         for (let i = 0; i < currentConfig.length; i++) {
             const {
@@ -111,5 +111,6 @@ module.exports = {
     setCalibration: (_calibration) => calibration = _calibration,
     setCalibrationMode: (mode) => {
         calibrationMode = mode
-    }
+    },
+    setDatagramType: (types) => datagramTypes = types
 };

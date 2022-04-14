@@ -7,6 +7,7 @@ import {
   Button,
   Slider,
   Checkbox,
+  FormControlLabel,
 } from "@material-ui/core";
 import MaUTable from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -28,6 +29,8 @@ const dimensions = ["posX", "posY", "posZ"]
 function App() {
   const [config, setConfig] = useState([]);
   const [sensors, setSensors] = useState([]);
+  const [sendEuler, setSendEuler] = useState(true);
+  const [sendQuaternion, setSendQuaternion] = useState(false);
   const [isCalibratingAll, setIsCalibratingAll] = useState(false);
   const [isCalibratingActive, setIsCalibratingActive] = useState(false);
 
@@ -90,12 +93,12 @@ function App() {
       {
         Header: "Skip",
         accessor: "skip",
-        Cell: ({ value, row }) => <Slider valueLabelDisplay={true} min={1} max={200} value={value || 0} onChange={((e, value) => updateColumn('skip', value, row.index))} />
+        Cell: ({ value, row }) => <Slider valueLabelDisplay="auto" min={1} max={200} value={value || 0} onChange={((e, value) => updateColumn('skip', value, row.index))} />
       },
       {
         Header: "Velocity",
         accessor: "velocity",
-        Cell: ({ value, row }) => <Slider valueLabelDisplay={true} min={0} max={127} value={value || 0} onChange={((_, value) => updateColumn('velocity', value, row.index))} />
+        Cell: ({ value, row }) => <Slider valueLabelDisplay="auto" min={0} max={127} value={value || 0} onChange={((_, value) => updateColumn('velocity', value, row.index))} />
       },
       {
         Header: "Threshold",
@@ -175,8 +178,16 @@ function App() {
     }
   }
 
+  const toggleDatagrams = (sendEuler, sendQuaternion) => {
+    setSendEuler(sendEuler)
+    setSendQuaternion(sendQuaternion)
+    server.post('/pose/datagram-type', { sendEuler, sendQuaternion })
+  }
+
   return (
     <div className="App">
+      <FormControlLabel control={<Checkbox checked={sendEuler} onChange={(e, checked) => toggleDatagrams(checked, sendQuaternion)} />} label="Euler Datagram (MXTP01)" />
+      <FormControlLabel control={<Checkbox checked={sendQuaternion} onChange={(e, checked) => toggleDatagrams(sendEuler, checked)} />} label="Quaternion Datagram (MXTP02)" />
       <ToggleButton
         value="check"
         selected={isCalibratingAll}
