@@ -9,7 +9,8 @@
         "offset": 50,
         "action": "cc",
         "cc": 28,
-        "multiply": 127
+        "multiply": 127,
+        "threshold": 0
     },
     {
         "enabled": true,
@@ -20,6 +21,7 @@
         "velocity": 127,
         "action": "cc",
         "cc": 21,
-        "multiply": 127
+        "multiply": 127,
+        "threshold": 0
     }
 ]

@@ -4,17 +4,17 @@ import {
   TableContainer,
   Select,
   MenuItem,
-  Button,
-  Slider,
   Checkbox,
   FormControlLabel,
-} from "@material-ui/core";
-import MaUTable from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-import { ToggleButton } from '@material-ui/lab'
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  ToggleButton,
+  Stack
+} from "@mui/material";
 import server, { getServerUrl } from "./server";
 import {
   useTable,
@@ -23,6 +23,7 @@ import {
   useFilters,
   useSortBy,
 } from "react-table";
+import { TableSlider } from "./TableSlider";
 
 const dimensions = ["posX", "posY", "posZ"]
 
@@ -34,23 +35,25 @@ function App() {
   const [isCalibratingAll, setIsCalibratingAll] = useState(false);
   const [isCalibratingActive, setIsCalibratingActive] = useState(false);
 
-  const updateColumn = useCallback((property, value, row) => {
-    console.log(`updating ${property} of row ${row} from ${config[row][property]} to ${value}`)
-    config[row][property] = value
-    setConfig([...config]);
-  }, [config, setConfig]);
+  const updateColumn = useCallback((row, col, value) => {
+    setConfig(config => {
+      config[row][col] = value
+      return [...config]
+    }
+    );
+  }, [setConfig]);
 
   const columns = useMemo(
     () => [
       {
         Header: "Enabled",
         accessor: "enabled",
-        Cell: ({ value, row }) => <Checkbox checked={value === true} onChange={((e, value) => updateColumn('enabled', value, row.index))} />
+        Cell: ({ value, row }) => <Checkbox checked={value === true} onChange={((e, value) => updateColumn(row.index, 'enabled', value))} />
       },
       {
         Header: "Sensor",
         accessor: "sensor",
-        Cell: ({ value, row }) => <Select value={value || 'Head'} onChange={((e) => updateColumn('sensor', e.target.value, row.index))}>
+        Cell: ({ value, row }) => <Select size='small' value={value || 'Head'} onChange={((e) => updateColumn(row.index, 'sensor', e.target.value))}>
           {
             sensors.map((sensor, k) =>
               <MenuItem value={sensor} key={k}>{sensor}</MenuItem>
@@ -61,8 +64,8 @@ function App() {
       {
         Header: "Action",
         accessor: "action",
-        Cell: ({ value, row }) => <>
-          <Select value={value} onChange={((e) => updateColumn('action', e.target.value, row.index))}>
+        Cell: ({ value, row }) => <Stack spacing={1} direction="row" alignItems="center">
+          <Select size='small' value={value} onChange={((e) => updateColumn(row.index, 'action', e.target.value))}>
             {
               ["midi", "pitch", "cc"].map((action, k) =>
                 <MenuItem value={action} key={k}>{action}</MenuItem>
@@ -70,19 +73,19 @@ function App() {
             }
           </Select>
           {
-            value === "cc" && <input min={1} max={127} type="number" name="cc" value={config[row.index]?.cc || 0} onChange={((e) => updateColumn('cc', e.target.value, row.index))} />
+            value === "cc" && <input min={1} max={127} type="number" name="cc" value={config[row.index]?.cc || 0} onChange={((e) => updateColumn(row.index, 'cc', e.target.value))} />
           }
-        </>
+        </Stack>
       },
       {
         Header: "Channel",
         accessor: "channel",
-        Cell: ({ value, row }) => <input min={1} max={127} type="number" name="channel" value={value} onChange={((e) => updateColumn('channel', e.target.value, row.index))} />
+        Cell: ({ value, row }) => <input min={0} max={127} type="number" name="channel" value={value || 0} onChange={((e) => updateColumn(row.index, 'channel', e.target.value))} />
       },
       {
         Header: "Dimension",
         accessor: "dimension",
-        Cell: ({ value, row }) => <Select value={value || 'posX'} onChange={((e) => updateColumn('dimension', e.target.value, row.index))}>
+        Cell: ({ value, row }) => <Select size='small' value={value || 'posX'} onChange={((e) => updateColumn(row.index, 'dimension', e.target.value))}>
           {
             dimensions.map((dimension, k) =>
               <MenuItem value={dimension} key={k}>{dimension}</MenuItem>
@@ -93,17 +96,17 @@ function App() {
       {
         Header: "Skip",
         accessor: "skip",
-        Cell: ({ value, row }) => <Slider valueLabelDisplay="auto" min={1} max={200} value={value || 0} onChange={((e, value) => updateColumn('skip', value, row.index))} />
+        Cell: TableSlider
       },
       {
         Header: "Velocity",
         accessor: "velocity",
-        Cell: ({ value, row }) => <Slider valueLabelDisplay="auto" min={0} max={127} value={value || 0} onChange={((_, value) => updateColumn('velocity', value, row.index))} />
+        Cell: TableSlider
       },
       {
         Header: "Threshold",
         accessor: "threshold",
-        Cell: ({ value, row }) => <input type="number" name="treshold" value={value || 0} onChange={((e) => updateColumn('treshold', e.target.value, row.index))} />
+        Cell: TableSlider
       }
     ],
     [config, sensors, updateColumn]
@@ -119,9 +122,7 @@ function App() {
 
   useEffect(() => {
     server.post("/config", config.filter((obj) => obj.enabled))
-    console.log(`updated config to:\n ${JSON.stringify(config, null, 2)}`)
   }, [config]);
-
 
   const {
     getTableProps,
@@ -136,6 +137,7 @@ function App() {
         pageSize: 23,
       },
       getRowId: useCallback((row) => row.sensor, []),
+      updateColumn
     },
     useFilters,
     useSortBy,
@@ -185,36 +187,49 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <FormControlLabel control={<Checkbox checked={sendEuler} onChange={(e, checked) => toggleDatagrams(checked, sendQuaternion)} />} label="Euler Datagram (MXTP01)" />
-      <FormControlLabel control={<Checkbox checked={sendQuaternion} onChange={(e, checked) => toggleDatagrams(sendEuler, checked)} />} label="Quaternion Datagram (MXTP02)" />
-      <ToggleButton
-        value="check"
-        selected={isCalibratingAll}
-        onClick={() => toggleCalibration(!isCalibratingAll, false)}
-      >
-        Calibrate all
-      </ToggleButton>
-      <ToggleButton
-        value="check"
-        selected={isCalibratingActive}
-        onClick={() => toggleCalibration(false, !isCalibratingActive)}
-      >
-        Calibrate active
-      </ToggleButton>
-      <Button
-        onClick={() => window.open('/pose')}
-      >
-        Pose
-      </Button>
-      <Button
-        onClick={() => window.open(`${getServerUrl()}/pose/calibration`)}
-      >
-        Show calibration
-      </Button>
+    <Stack padding={2}>
+
+      <Stack className="App" spacing={1} direction="row" alignItems="center">
+        <FormControlLabel size='small' control={<Checkbox size='small' checked={sendEuler} onChange={(e, checked) => toggleDatagrams(checked, sendQuaternion)} />} label="Euler (MXTP01)" />
+        <FormControlLabel size='small' control={<Checkbox size='small' checked={sendQuaternion} onChange={(e, checked) => toggleDatagrams(sendEuler, checked)} />} label="Quat (MXTP02)" />
+        <ToggleButton size="small" variant="contained" color="primary"
+          value="check"
+          selected={isCalibratingAll}
+          onClick={() => toggleCalibration(!isCalibratingAll, false)}
+        >
+          Calibrate all
+        </ToggleButton>
+        <ToggleButton size="small" variant="contained" color="primary"
+          value="check"
+          selected={isCalibratingActive}
+          onClick={() => toggleCalibration(false, !isCalibratingActive)}
+        >
+          Calibrate active
+        </ToggleButton>
+        <Button size='small' variant="contained" color="primary"
+          onClick={() => window.open(`${getServerUrl()}/pose/calibration`)}
+        >
+          Show calibration
+        </Button>
+        <Button size='small' variant="contained" color="primary"
+          onClick={() => window.localStorage.removeItem('calibration')}
+        >
+          Reset calibration
+        </Button>
+        <Button size="small" variant="contained" color="primary"
+          onClick={() => window.open('/pose')}
+        >
+          Pose
+        </Button>
+        <Button size='small' variant="contained" color="primary"
+          onClick={() => window.open(`${getServerUrl()}/config`)}
+        >
+          Show config
+        </Button>
+      </Stack>
 
       <TableContainer>
-        <MaUTable {...getTableProps()} >
+        <Table {...getTableProps()} >
           <TableHead>
             {headerGroups.map((headerGroup, i) => (
               <TableRow key={i} {...headerGroup.getHeaderGroupProps()}>
@@ -256,9 +271,10 @@ function App() {
             })}
           </TableBody>
           <Button onClick={() => addRow()}>+</Button>
-        </MaUTable>
+        </Table>
       </TableContainer>
-    </div>
+    </Stack>
+
   );
 
 }

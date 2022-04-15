@@ -5,16 +5,25 @@ import App from "./App";
 import Pose from "./Pose";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+
+const theme = createTheme({
+    typography: {
+        fontSize: 12,
+    },
+});
 
 ReactDOM.render(
     <React.StrictMode>
-        <Router>
-            <Routes>
-                <Route path="/pose" element={<Pose />}></Route>
-                <Route path="/" element={<App />}></Route>
-            </Routes>
-        </Router>
-    </React.StrictMode>,
+        <ThemeProvider theme={theme}>
+            <Router>
+                <Routes>
+                    <Route path="/pose" element={<Pose />}></Route>
+                    <Route path="/" element={<App />}></Route>
+                </Routes>
+            </Router>
+        </ThemeProvider>
+    </React.StrictMode >,
     document.getElementById("root")
 );
 

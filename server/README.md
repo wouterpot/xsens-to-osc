@@ -17,3 +17,4 @@ TODO:
 * 0 waardes tussen de pakketten
 * testen met xsens router
 * activate under certain threshold
+* save config to local storage
