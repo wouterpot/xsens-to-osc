@@ -65,8 +65,10 @@ const scale = (sensor, dimension, multiply, inverted, sensorValue) => {
     const factor = inverted ? -1 : 1
     const minVal = calibration?.[sensor]?.min?.[dimension]
     const maxVal = calibration?.[sensor]?.max?.[dimension]
-    if (minVal && maxVal)
+    if (minVal && maxVal) {
+        sensorValue = Math.min(maxVal, Math.max(minVal, sensorValue))
         return (sensorValue - minVal) * multiply * factor / (maxVal - minVal)
+    }
     else
         return sensorValue
 }

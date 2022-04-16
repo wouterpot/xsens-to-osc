@@ -37,6 +37,11 @@ router.post("/calibration", async (req, res) => {
     res.sendStatus(200);
 });
 
+router.delete("/calibration", async (req, res) => {
+    setCalibration({})
+    res.sendStatus(200);
+});
+
 router.post("/datagram-type", async (req, res) => {
     const { sendEuler, sendQuaternion } = req.body
     const types = []

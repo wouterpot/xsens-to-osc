@@ -85,7 +85,7 @@ function App() {
         Cell: TableCheckbox
       },
     ],
-    [updateColumn]
+    []
   );
 
   useEffect(() => {
@@ -200,7 +200,10 @@ function App() {
           Show calibration
         </Button>
         <Button size='small' variant="contained" color="primary"
-          onClick={() => window.localStorage.removeItem('calibration')}
+          onClick={() => {
+            window.localStorage.removeItem('calibration')
+            server.delete('/pose/calibration')
+          }}
         >
           Reset calibration
         </Button>

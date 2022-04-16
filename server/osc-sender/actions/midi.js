@@ -21,9 +21,9 @@ const midi = ({ channel }, noteNr, velocity) => {
     silent(1000, channel, noteNr);
 };
 
-const sane = (val) => Math.abs(Math.round(val)) % 127;
+const sane = (val) => Math.abs(Math.round(val));
 
-const sanePitch = (val) => Math.round(val) % 16384;
+const sanePitch = (val) => Math.round(val);
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
