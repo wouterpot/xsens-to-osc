@@ -35,7 +35,6 @@ socket.on("message", function (msg, info) {
                 sensor,
                 channel,
                 velocity,
-                threshold,
                 track,
                 fx,
                 cc,
@@ -47,7 +46,6 @@ socket.on("message", function (msg, info) {
             const sensorIndex = sensors.indexOf(sensor);
             setMinMax(sensor, packet, enabled);
             let sensorValue = packet.segments[sensorIndex][dimension];
-            if (sensorValue <= threshold) continue;
             sensorValue = scale(sensor, dimension, multiply, inverted, sensorValue)
             skip[i] = skip[i] || 1;
             skip[i] = (skip[i] % skipSamples) + 1;

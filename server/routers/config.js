@@ -4,7 +4,7 @@ const router = express.Router();
 let currentConfig = require("./config.json");
 
 router.get("/", async (req, res) => {
-  res.send({ segments, config: currentConfig });
+  res.send({ config: currentConfig, segments });
 });
 
 router.post("/", async (req, res) => {

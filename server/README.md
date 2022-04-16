@@ -14,6 +14,4 @@
 * arpeggiator rate
 
 TODO:
-* 0 waardes tussen de pakketten
 * testen met xsens router
-* save config to local storage

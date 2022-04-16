@@ -2,8 +2,6 @@ import "./App.css";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   TableContainer,
-  Select,
-  MenuItem,
   Checkbox,
   FormControlLabel,
   Button,
@@ -23,9 +21,10 @@ import {
   useFilters,
   useSortBy,
 } from "react-table";
-import { TableSlider } from "./TableSlider";
+import { TableSlider, TableSensorSelect, TableActionSelect, TableCheckbox, TableDimensionSelect } from "./table-components";
+import { TableTextfield } from "./table-components/TableTextfield";
 
-const dimensions = ["posX", "posY", "posZ"]
+export const dimensions = ["posX", "posY", "posZ"]
 
 function App() {
   const [config, setConfig] = useState([]);
@@ -48,50 +47,27 @@ function App() {
       {
         Header: "Enabled",
         accessor: "enabled",
-        Cell: ({ value, row }) => <Checkbox checked={value === true} onChange={((e, value) => updateColumn(row.index, 'enabled', value))} />
+        Cell: TableCheckbox
       },
       {
         Header: "Sensor",
         accessor: "sensor",
-        Cell: ({ value, row }) => <Select size='small' value={value || 'Head'} onChange={((e) => updateColumn(row.index, 'sensor', e.target.value))}>
-          {
-            sensors.map((sensor, k) =>
-              <MenuItem value={sensor} key={k}>{sensor}</MenuItem>
-            )
-          }
-        </Select>
+        Cell: TableSensorSelect
       },
       {
         Header: "Action",
         accessor: "action",
-        Cell: ({ value, row }) => <Stack spacing={1} direction="row" alignItems="center">
-          <Select size='small' value={value} onChange={((e) => updateColumn(row.index, 'action', e.target.value))}>
-            {
-              ["midi", "pitch", "cc"].map((action, k) =>
-                <MenuItem value={action} key={k}>{action}</MenuItem>
-              )
-            }
-          </Select>
-          {
-            value === "cc" && <input min={1} max={127} type="number" name="cc" value={config[row.index]?.cc || 0} onChange={((e) => updateColumn(row.index, 'cc', e.target.value))} />
-          }
-        </Stack>
+        Cell: TableActionSelect
       },
       {
         Header: "Channel",
         accessor: "channel",
-        Cell: ({ value, row }) => <input min={0} max={127} type="number" name="channel" value={value || 0} onChange={((e) => updateColumn(row.index, 'channel', e.target.value))} />
+        Cell: TableTextfield
       },
       {
         Header: "Dimension",
         accessor: "dimension",
-        Cell: ({ value, row }) => <Select size='small' value={value || 'posX'} onChange={((e) => updateColumn(row.index, 'dimension', e.target.value))}>
-          {
-            dimensions.map((dimension, k) =>
-              <MenuItem value={dimension} key={k}>{dimension}</MenuItem>
-            )
-          }
-        </Select>
+        Cell: TableDimensionSelect
       },
       {
         Header: "Skip",
@@ -106,21 +82,33 @@ function App() {
       {
         Header: "Inverted",
         accessor: "inverted",
-        Cell: ({ value, row }) => <Checkbox checked={value === true} onChange={((_e, value) => updateColumn(row.index, 'inverted', value))} />
+        Cell: TableCheckbox
       },
     ],
-    [config, sensors, updateColumn]
+    [updateColumn]
   );
 
   useEffect(() => {
-    server.get("/config").then((body) => {
-      setSensors(body.data.segments)
-      setConfig(body.data.config)
+    const config = window.localStorage.getItem('config')
+    const sensors = window.localStorage.getItem('sensors')
+    if (config && sensors) {
+      setConfig(JSON.parse(config))
+      setSensors(JSON.parse(sensors))
     }
-    );
+    else {
+      server.get("/config").then((body) => {
+        setSensors(body.data.segments)
+        setConfig(body.data.config)
+      })
+    }
   }, []);
 
   useEffect(() => {
+    window.localStorage.setItem('sensors', JSON.stringify(sensors))
+  }, [sensors]);
+
+  useEffect(() => {
+    window.localStorage.setItem('config', JSON.stringify(config))
     server.post("/config", config.filter((obj) => obj.enabled))
   }, [config]);
 
@@ -137,7 +125,7 @@ function App() {
         pageSize: 23,
       },
       getRowId: useCallback((row) => row.sensor, []),
-      updateColumn
+      updateColumn, sensors, config
     },
     useFilters,
     useSortBy,
@@ -270,9 +258,9 @@ function App() {
               );
             })}
           </TableBody>
-          <Button onClick={() => addRow()}>+</Button>
         </Table>
       </TableContainer>
+      <Button onClick={() => addRow()}>+</Button>
     </Stack>
 
   );
