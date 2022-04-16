@@ -104,10 +104,10 @@ function App() {
         Cell: TableSlider
       },
       {
-        Header: "Threshold",
-        accessor: "threshold",
-        Cell: TableSlider
-      }
+        Header: "Inverted",
+        accessor: "inverted",
+        Cell: ({ value, row }) => <Checkbox checked={value === true} onChange={((_e, value) => updateColumn(row.index, 'inverted', value))} />
+      },
     ],
     [config, sensors, updateColumn]
   );

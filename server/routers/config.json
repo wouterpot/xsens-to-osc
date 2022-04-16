@@ -10,7 +10,7 @@
         "action": "cc",
         "cc": 28,
         "multiply": 127,
-        "threshold": 0
+        "inverted": false
     },
     {
         "enabled": true,
@@ -22,6 +22,6 @@
         "action": "cc",
         "cc": 21,
         "multiply": 127,
-        "threshold": 0
+        "inverted": false
     }
 ]
