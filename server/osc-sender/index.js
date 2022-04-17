@@ -40,13 +40,12 @@ socket.on("message", function (msg, info) {
                 cc,
                 fxparam,
                 action = "midi",
-                multiply = 127,
                 inverted = false
             } = currentConfig[i];
             const sensorIndex = sensors.indexOf(sensor);
             setMinMax(sensor, packet, enabled);
             let sensorValue = packet.segments[sensorIndex][dimension];
-            sensorValue = scale(sensor, dimension, multiply, inverted, sensorValue)
+            sensorValue = scale(sensor, dimension, inverted, sensorValue)
             skip[i] = skip[i] || 1;
             skip[i] = (skip[i] % skipSamples) + 1;
             if (skip[i] === skipSamples && actions[action] && enabled) {
@@ -61,13 +60,13 @@ socket.on("message", function (msg, info) {
     }
 });
 
-const scale = (sensor, dimension, multiply, inverted, sensorValue) => {
-    const factor = inverted ? -1 : 1
+const scale = (sensor, dimension, inverted, sensorValue) => {
     const minVal = calibration?.[sensor]?.min?.[dimension]
     const maxVal = calibration?.[sensor]?.max?.[dimension]
     if (minVal && maxVal) {
+        const factor = inverted ? -1 : 1
         sensorValue = Math.min(maxVal, Math.max(minVal, sensorValue))
-        return (sensorValue - minVal) * multiply * factor / (maxVal - minVal)
+        return (sensorValue - minVal) * factor / (maxVal - minVal)
     }
     else
         return sensorValue

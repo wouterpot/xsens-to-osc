@@ -14,16 +14,16 @@ const silent = async (wait, channel, noteToSilent) => {
 };
 
 const note = (channel, note, velocity = 100) =>
-    midiSend(velocity === 0 ? 'noteoff' : 'noteon', { velocity, note, channel });
+    midiSend(velocity === 0 ? 'noteoff' : 'noteon', { velocity, note: sane(note), channel });
 
 const midi = ({ channel }, noteNr, velocity) => {
     note(channel, noteNr, velocity);
     silent(1000, channel, noteNr);
 };
 
-const sane = (val) => Math.abs(Math.round(val));
+const sane = (val) => Math.round(val * 127);
 
-const sanePitch = (val) => Math.round(val);
+const sanePitch = (val) => Math.round(val * 16384 - 16384 / 2);
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 

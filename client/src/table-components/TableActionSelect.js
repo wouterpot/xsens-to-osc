@@ -9,7 +9,7 @@ export function TableActionSelect({ value, row, column, updateColumn, config }) 
       {["midi", "pitch", "cc"].map((action, k) => <MenuItem value={action} key={k}>{action}</MenuItem>
       )}
     </Select>
-    {value === "cc" ? <TextField inputProps={{ min: 0, max: 127 }} type="number" name="cc" size='small' value={config[row.index]?.cc || 0} onChange={((e) => updateColumn(row.index, 'cc', e.target.value))} /> : null}
+    {value === "cc" ? <TextField inputProps={{ min: 0, max: 127 }} type="number" name="cc" size='small' value={config[row.index]?.cc || 0} onChange={((e) => updateColumn(row.index, 'cc', parseInt(e.target.value)))} /> : null}
   </Stack>;
 
 }

@@ -29,6 +29,7 @@ export const dimensions = ["posX", "posY", "posZ"]
 function App() {
   const [config, setConfig] = useState([]);
   const [sensors, setSensors] = useState([]);
+  const [calibration, setCalibration] = useState({});
   const [sendEuler, setSendEuler] = useState(true);
   const [sendQuaternion, setSendQuaternion] = useState(false);
   const [isCalibratingAll, setIsCalibratingAll] = useState(false);
@@ -109,7 +110,7 @@ function App() {
 
   useEffect(() => {
     window.localStorage.setItem('config', JSON.stringify(config))
-    server.post("/config", config.filter((obj) => obj.enabled))
+    server.post("/config", config)
   }, [config]);
 
   const {
@@ -124,7 +125,7 @@ function App() {
       initialState: {
         pageSize: 23,
       },
-      getRowId: useCallback((row) => row.sensor, []),
+      getRowId: useCallback((row, i) => `${row.sensor}_${i}`, []),
       updateColumn, sensors, config
     },
     useFilters,
@@ -148,15 +149,20 @@ function App() {
     }]);
   }
 
-  async function getCalibration() {
-    const str = window.localStorage.getItem('calibration');
-    if (str) {
-      const calibration = JSON.parse(str);
-      if (calibration) await server.post(`/pose/calibration`, calibration);
+  useEffect(() => {
+    const calibration = window.localStorage.getItem('calibration')
+    if (calibration) {
+      setCalibration(JSON.parse(calibration))
     }
-  }
+    else {
+      server.get(`/pose/calibration`).then(({ data } = {}) => data && setCalibration(data))
+    }
+  }, [])
 
-  useEffect(() => { getCalibration() }, [])
+  useEffect(() => {
+    window.localStorage.setItem('calibration', JSON.stringify(calibration))
+    server.post(`/pose/calibration`, calibration)
+  }, [calibration])
 
   const toggleCalibration = async (all, active) => {
     console.log(`Calibrate all: ${all}; Calibrate active: ${active}`)
@@ -164,7 +170,7 @@ function App() {
     setIsCalibratingActive(active)
     const { data: calibration } = (await server.post(`/pose/toggle-calibration`, { all, active })) || {}
     if (!all && !active) {
-      window.localStorage.setItem('calibration', JSON.stringify(calibration))
+      setCalibration(calibration)
     }
   }
 

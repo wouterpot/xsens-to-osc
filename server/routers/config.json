@@ -6,10 +6,8 @@
         "skip": 1,
         "sensor": "RightHand",
         "velocity": 100,
-        "offset": 50,
         "action": "cc",
         "cc": 28,
-        "multiply": 127,
         "inverted": false
     },
     {
@@ -21,7 +19,6 @@
         "velocity": 127,
         "action": "cc",
         "cc": 21,
-        "multiply": 127,
         "inverted": false
     }
 ]
