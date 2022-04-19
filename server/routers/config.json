@@ -20,5 +20,35 @@
         "action": "cc",
         "cc": 21,
         "inverted": false
+    },
+    {
+        "enabled": true,
+        "channel": 0,
+        "dimension": "posY",
+        "skip": 1,
+        "multiply": 10,
+        "sensor": "Head",
+        "action": "cc",
+        "cc": 27
+    },
+    {
+        "enabled": true,
+        "channel": 0,
+        "dimension": "posY",
+        "skip": 1,
+        "multiply": 10,
+        "sensor": "LeftFoot",
+        "action": "cc",
+        "cc": 29
+    },
+    {
+        "enabled": true,
+        "channel": 0,
+        "dimension": "posY",
+        "skip": 1,
+        "multiply": 10,
+        "sensor": "RightFoot",
+        "action": "cc",
+        "cc": 30
     }
 ]
