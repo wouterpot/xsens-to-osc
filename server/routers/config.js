@@ -1,17 +1,15 @@
 const express = require("express");
 const segments = require("./sensors");
 const router = express.Router();
-let currentConfig = require("./config.json");
+const { setConfig, getConfig } = require('../osc-sender')
 
 router.get("/", async (req, res) => {
-  res.send({ config: currentConfig, segments });
+  res.send({ config: getConfig(), segments });
 });
 
 router.post("/", async (req, res) => {
-  currentConfig = req.body;
+  setConfig(req.body);
   res.sendStatus(200);
 });
 
-const getConfig = () => currentConfig;
-
-module.exports = { router, config: getConfig };
+module.exports = { router };

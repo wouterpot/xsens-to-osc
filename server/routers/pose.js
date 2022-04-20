@@ -1,12 +1,12 @@
 const express = require("express");
 const { getLastPacket, getCalibration, setCalibration, setCalibrationMode, setDatagramType } = require("../osc-sender");
 const sensors = require("./sensors.json");
-const { config } = require("./config");
+const { getConfig } = require("../osc-sender");
 const router = express.Router();
 
 router.get("/", async (req, res) => {
     const packet = getLastPacket();
-    const currentConfig = config();
+    const currentConfig = getConfig();
     const activeSensors = currentConfig.map((c) => c.sensor);
 
     if (packet) {

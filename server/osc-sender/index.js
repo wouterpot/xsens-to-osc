@@ -1,18 +1,18 @@
 var dgram = require("dgram");
 const readPacket = require("../xsens/read-mxtp");
 const port = 9763;
-const { config } = require("../routers/config");
 const sensors = require("../routers/sensors");
 const actions = require("./actions");
 const getIp = require("../get-ip");
 const readline = require('node:readline');
+const fs = require('fs')
 
 socket = dgram.createSocket("udp4");
-console.log(config());
 
 const skip = {};
 let lastPacket;
-let calibration = {};
+let calibration = require('./calibration.json')
+let config = require('./config.json')
 let calibrationMode = {};
 let datagramTypes = ["MXTP01"]
 
@@ -24,10 +24,9 @@ socket.on("message", function (msg, info) {
         //console.log(packet)
     }
 
-    const currentConfig = config();
     if (datagramTypes.includes(packet.type)) {
         lastPacket = packet;
-        for (let i = 0; i < currentConfig.length; i++) {
+        for (let i = 0; i < config.length; i++) {
             const {
                 skip: skipSamples = 1,
                 enabled,
@@ -41,7 +40,7 @@ socket.on("message", function (msg, info) {
                 fxparam,
                 action = "midi",
                 inverted = false
-            } = currentConfig[i];
+            } = config[i];
             const sensorIndex = sensors.indexOf(sensor);
             setMinMax(sensor, packet, enabled);
             let sensorValue = packet.segments[sensorIndex][dimension];
@@ -106,12 +105,25 @@ const setMinMax = (sensor, packet, enabled) => {
     };
 };
 
+function setCalibration(_calibration) {
+    calibration = _calibration
+    fs.writeFileSync('./osc-sender/calibration.json', JSON.stringify(_calibration, null, 4))
+}
+
 module.exports = {
     getLastPacket: () => lastPacket,
+    getConfig: () => config,
+    setConfig: (_config) => {
+        config = _config
+        fs.writeFileSync('./osc-sender/config.json', JSON.stringify(_config, null, 4))
+    },
     getCalibration: () => (calibration),
-    setCalibration: (_calibration) => calibration = _calibration,
-    setCalibrationMode: (mode) => {
-        calibrationMode = mode
+    setCalibration,
+    setCalibrationMode: ({ all, active }) => {
+        calibrationMode = { all, active }
+        if (!all && !active) {
+            setCalibration(calibration)
+        }
     },
     setDatagramType: (types) => datagramTypes = types
 };

@@ -29,7 +29,6 @@ export const dimensions = ["posX", "posY", "posZ"]
 function App() {
   const [config, setConfig] = useState([]);
   const [sensors, setSensors] = useState([]);
-  const [calibration, setCalibration] = useState({});
   const [sendEuler, setSendEuler] = useState(true);
   const [sendQuaternion, setSendQuaternion] = useState(false);
   const [isCalibratingAll, setIsCalibratingAll] = useState(false);
@@ -89,28 +88,21 @@ function App() {
     []
   );
 
-  useEffect(() => {
-    const config = window.localStorage.getItem('config')
-    const sensors = window.localStorage.getItem('sensors')
-    if (config && sensors) {
-      setConfig(JSON.parse(config))
-      setSensors(JSON.parse(sensors))
-    }
-    else {
-      server.get("/config").then((body) => {
-        setSensors(body.data.segments)
-        setConfig(body.data.config)
-      })
-    }
-  }, []);
+  const init = ({ data: { segments, config } }) => {
+    setSensors(segments)
+    setConfig(config)
+  }
 
   useEffect(() => {
-    window.localStorage.setItem('sensors', JSON.stringify(sensors))
-  }, [sensors]);
+    const getConfig = async () => {
+      server.get("/config").then(init)
+    }
+
+    getConfig()
+  }, [setConfig, setSensors]);
 
   useEffect(() => {
-    window.localStorage.setItem('config', JSON.stringify(config))
-    server.post("/config", config)
+    if (config.length !== 0) server.post("/config", config)
   }, [config]);
 
   const {
@@ -135,7 +127,6 @@ function App() {
   );
 
   const addRow = () => {
-    console.log(`Adding another row`)
     const available = sensors.filter(s => !config.map(c => c.sensor).includes(s))
     setConfig([...config, {
       enabled: true,
@@ -149,29 +140,12 @@ function App() {
     }]);
   }
 
-  useEffect(() => {
-    const calibration = window.localStorage.getItem('calibration')
-    if (calibration) {
-      setCalibration(JSON.parse(calibration))
-    }
-    else {
-      server.get(`/pose/calibration`).then(({ data } = {}) => data && setCalibration(data))
-    }
-  }, [])
-
-  useEffect(() => {
-    window.localStorage.setItem('calibration', JSON.stringify(calibration))
-    server.post(`/pose/calibration`, calibration)
-  }, [calibration])
 
   const toggleCalibration = async (all, active) => {
     console.log(`Calibrate all: ${all}; Calibrate active: ${active}`)
     setIsCalibratingAll(all)
     setIsCalibratingActive(active)
-    const { data: calibration } = (await server.post(`/pose/toggle-calibration`, { all, active })) || {}
-    if (!all && !active) {
-      setCalibration(calibration)
-    }
+    server.post(`/pose/toggle-calibration`, { all, active })
   }
 
   const toggleDatagrams = (sendEuler, sendQuaternion) => {
@@ -207,7 +181,6 @@ function App() {
         </Button>
         <Button size='small' variant="contained" color="primary"
           onClick={() => {
-            window.localStorage.removeItem('calibration')
             server.delete('/pose/calibration')
           }}
         >
