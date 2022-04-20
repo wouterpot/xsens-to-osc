@@ -42,8 +42,8 @@ socket.on("message", function (msg, info) {
                 inverted = false
             } = config[i];
             const sensorIndex = sensors.indexOf(sensor);
-            setMinMax(sensor, packet, enabled);
-            let sensorValue = packet.segments[sensorIndex][dimension];
+            setMinMax(sensor, packet.segments, enabled);
+            let sensorValue = getSensorValue(packet.segments, sensorIndex, dimension);
             sensorValue = scale(sensor, dimension, inverted, sensorValue)
             skip[i] = skip[i] || 1;
             skip[i] = (skip[i] % skipSamples) + 1;
@@ -58,6 +58,21 @@ socket.on("message", function (msg, info) {
         }
     }
 });
+
+const getSensorValue = (segments, sensorIndex, dimension) => {
+    const segment = segments[sensorIndex];
+    if (dimension === 'posY')
+        return segment[dimension]
+    else if (dimension === "Δxz") {
+        const { posX, posZ } = segment
+        const pelvis = segments[sensors.indexOf('Pelvis')]
+        return pytha(posX - pelvis.posX, posZ - pelvis.posZ)
+    }
+    else if (dimension === 'posX' || dimension === 'posZ') {
+        const pelvis = segments[sensors.indexOf('Pelvis')]
+        return segment[dimension] - pelvis[dimension]
+    }
+}
 
 const scale = (sensor, dimension, inverted, sensorValue) => {
     const minVal = calibration?.[sensor]?.min?.[dimension]
@@ -84,23 +99,32 @@ if (pcapFile) {
     new Worker("./xsens/read-ncap.js", { workerData: { pcapFile } });
 }
 
-const setMinMax = (sensor, packet, enabled) => {
+function pytha(sideA, sideB) {
+    return Math.sqrt(Math.pow(sideA, 2) + Math.pow(sideB, 2));
+}
+
+const setMinMax = (sensor, segments, enabled) => {
     const sensorIndex = sensors.indexOf(sensor);
+    const pelvis = segments[sensors.indexOf("Pelvis")]
     const { all, active } = calibrationMode
     if (!all && !active) return
     if (active && !enabled) return
-    const { posX, posY, posZ } = packet.segments[sensorIndex]
+    const { posX, posY, posZ } = segments[sensorIndex]
+    const min = calibration?.[sensor]?.min;
+    const max = calibration?.[sensor]?.max;
     calibration[sensor] = {
         name: sensor,
         min: {
-            posX: Math.min(posX, calibration?.[sensor]?.min?.posX || Infinity),
-            posY: Math.min(posY, calibration?.[sensor]?.min?.posY || Infinity),
-            posZ: Math.min(posZ, calibration?.[sensor]?.min?.posZ || Infinity),
+            posX: Math.min(posX - pelvis.posX, min?.posX || Infinity),
+            posY: Math.min(posY, min?.posY || Infinity),
+            posZ: Math.min(posZ - pelvis.posZ, min?.posZ || Infinity),
+            Δxz: Math.min(pytha(posX - pelvis.posX, posZ - pelvis.posZ), min?.Δxz || Infinity)
         },
         max: {
-            posX: Math.max(posX, calibration?.[sensor]?.max?.posX || -Infinity),
-            posY: Math.max(posY, calibration?.[sensor]?.max?.posY || -Infinity),
-            posZ: Math.max(posZ, calibration?.[sensor]?.max?.posZ || -Infinity),
+            posX: Math.max(posX - pelvis.posX, max?.posX || -Infinity),
+            posY: Math.max(posY, max?.posY || -Infinity),
+            posZ: Math.max(posZ - pelvis.posZ, max?.posZ || -Infinity),
+            Δxz: Math.max(pytha(posX - pelvis.posX, posZ - pelvis.posZ), max?.Δxz || -Infinity)
         }
     };
 };

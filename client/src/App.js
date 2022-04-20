@@ -24,7 +24,7 @@ import {
 import { TableSlider, TableSensorSelect, TableActionSelect, TableCheckbox, TableDimensionSelect } from "./table-components";
 import { TableTextfield } from "./table-components/TableTextfield";
 
-export const dimensions = ["posX", "posY", "posZ"]
+export const dimensions = ["posX", "posY", "posZ", "Δxz"]
 
 function App() {
   const [config, setConfig] = useState([]);
