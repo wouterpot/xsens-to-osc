@@ -8,11 +8,15 @@ require("./osc-sender");
 
 const app = express();
 
+app.use(express.static(path.join(__dirname, '../client/build')))
 const cors = require("cors");
 app.set('json spaces', 2)
 app.use(logger('dev'))
 app.use(cors());
 app.use(express.json());
+
+app.use(express.static(path.join(__dirname, '../client/public')))
+
 app.use("/config", router);
 app.use("/pose", pose);
 

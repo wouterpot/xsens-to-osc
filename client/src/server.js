@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 export function getServerUrl() {
-  return 'http://localhost:5001'
+  return window.location.href.includes('localhost')
+    ? 'http://localhost:5001' : `http://${window.location.host}`
 }
 
 axios.defaults.baseURL = getServerUrl()
