@@ -50,5 +50,25 @@
         "sensor": "RightFoot",
         "action": "cc",
         "cc": 30
+    },
+    {
+        "enabled": false,
+        "channel": 0,
+        "dimension": "Δxz",
+        "skip": 1,
+        "multiply": 10,
+        "sensor": "RightHand",
+        "action": "cc",
+        "cc": 31
+    },
+    {
+        "enabled": false,
+        "channel": 0,
+        "dimension": "Δxz",
+        "skip": 1,
+        "multiply": 10,
+        "sensor": "LeftHand",
+        "action": "cc",
+        "cc": 32
     }
 ]
